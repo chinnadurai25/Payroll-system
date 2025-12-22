@@ -14,7 +14,7 @@ const Home = () => {
             A simple and secure payroll system to manage employee salaries,
             attendance, deductions, and payslips efficiently.
           </p>
-          <Link to="/register">
+          <Link to="/role">
             <button className="primary-btn">Create Account</button>
           </Link>
         </div>
