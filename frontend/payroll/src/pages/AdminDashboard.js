@@ -5,6 +5,7 @@ import Button from '../components/Button';
 import EmployeeList from '../components/EmployeeList';
 import PayrollForm from '../components/PayrollForm';
 import AttendancePanel from '../components/AttendancePanel';
+import SalarySlip from '../components/SalarySlip';
 import '../styles/AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -16,24 +17,30 @@ const AdminDashboard = () => {
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [loading, setLoading] = useState(true);
     const [attendanceMap, setAttendanceMap] = useState({});
+    const [viewingMonth, setViewingMonth] = useState(() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    });
+    const [viewMode, setViewMode] = useState('config'); // 'config' or 'slip'
+    const [pendingPayrollData, setPendingPayrollData] = useState(null);
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-        try {
-            const res = await fetch('http://localhost:5000/api/employees');
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            setEmployees(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.warn('Failed to fetch employees from /api/employees');
-            setEmployees([]);
-        } finally {
-            setLoading(false);
-        }
-    };
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/api/employees');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                setEmployees(Array.isArray(data) ? data : []);
+            } catch (error) {
+                console.warn('Failed to fetch employees from /api/employees');
+                setEmployees([]);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    fetchEmployees();
-}, []);
+        fetchEmployees();
+    }, []);
 
 
     const handleLogout = () => {
@@ -43,10 +50,10 @@ const AdminDashboard = () => {
 
     const handleEmployeeSelect = (employee) => {
         setSelectedEmployee(employee);
+        setViewMode('config');
     };
 
     const handlePayrollUpdate = (employeeId, payrollData) => {
-        // Here we would send a PUT request to the backend
         console.log(`Updating payroll for ${employeeId}:`, payrollData);
 
         // Optimistic UI update
@@ -54,10 +61,11 @@ const AdminDashboard = () => {
             emp.employeeId === employeeId ? { ...emp, payroll: payrollData } : emp
         );
         setEmployees(updatedEmployees);
-        // Also update selected employee to reflect changes immediately in UI if needed
         setSelectedEmployee({ ...selectedEmployee, payroll: payrollData });
 
-        alert("Payroll details updated successfully! (Mocked)");
+        // Save current calc data and show slip
+        setPendingPayrollData(payrollData);
+        setViewMode('slip');
     };
 
     const handleMarkAttendance = async (employeeId, date, status) => {
@@ -82,17 +90,13 @@ const AdminDashboard = () => {
         }
     };
 
-    // Fetch attendance for selected employee (current month) and populate attendanceMap
+    // Fetch attendance for selected employee (for the viewingMonth) and populate attendanceMap
     useEffect(() => {
         if (!selectedEmployee) return;
 
         const fetchAttendance = async () => {
             try {
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const monthStr = `${year}-${month}`;
-                const res = await fetch(`/api/attendance?employeeId=${encodeURIComponent(selectedEmployee.employeeId)}&month=${monthStr}`);
+                const res = await fetch(`http://localhost:5000/api/attendance?employeeId=${encodeURIComponent(selectedEmployee.employeeId)}&month=${viewingMonth}`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
 
@@ -108,11 +112,13 @@ const AdminDashboard = () => {
                 setAttendanceMap(prev => ({ ...prev, [selectedEmployee.employeeId]: statuses }));
             } catch (err) {
                 console.warn('Could not fetch attendance for', selectedEmployee.employeeId, err);
+                // Clear map if fetch fails or backend doesn't support it yet
+                setAttendanceMap(prev => ({ ...prev, [selectedEmployee.employeeId]: {} }));
             }
         };
 
         fetchAttendance();
-    }, [selectedEmployee]);
+    }, [selectedEmployee, viewingMonth]);
 
     if (loading) {
         return (
@@ -127,7 +133,7 @@ const AdminDashboard = () => {
     return (
         <div style={{ padding: '40px 20px' }} className="fade-in">
             <div className="container">
-                <div style={{
+                <div className="no-print" style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
@@ -144,7 +150,7 @@ const AdminDashboard = () => {
 
                 <div className="admin-dashboard-container">
                     {/* Left Panel: Employee List */}
-                    <div className="glass-panel" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    <div className="glass-panel no-print" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                         <EmployeeList
                             employees={employees}
                             onSelect={handleEmployeeSelect}
@@ -156,15 +162,60 @@ const AdminDashboard = () => {
                     <div className="details-panel">
                         {selectedEmployee ? (
                             <>
-                                <PayrollForm
-                                    employee={selectedEmployee}
-                                    onUpdate={handlePayrollUpdate}
-                                />
-                                <AttendancePanel
-                                    employee={selectedEmployee}
-                                    onMarkAttendance={handleMarkAttendance}
-                                    initialStatuses={attendanceMap[selectedEmployee.employeeId] || {}}
-                                />
+                                {viewMode === 'slip' ? (
+                                    <SalarySlip
+                                        employee={selectedEmployee}
+                                        payrollData={pendingPayrollData}
+                                        stats={(() => {
+                                            const [year, month] = viewingMonth.split('-').map(Number);
+                                            const daysInMonth = new Date(year, month, 0).getDate();
+                                            const currentEmpAttendance = attendanceMap[selectedEmployee.employeeId] || {};
+                                            const s = { totalDays: daysInMonth, present: 0, absent: 0, leave: 0 };
+                                            Object.values(currentEmpAttendance).forEach(status => {
+                                                if (status === 'P') s.present++;
+                                                else if (status === 'A') s.absent++;
+                                                else if (status === 'L') s.leave++;
+                                            });
+                                            return s;
+                                        })()}
+                                        onBack={() => setViewMode('config')}
+                                    />
+                                ) : (
+                                    <>
+                                        {(() => {
+                                            const [year, month] = viewingMonth.split('-').map(Number);
+                                            const daysInMonth = new Date(year, month, 0).getDate();
+                                            const currentEmpAttendance = attendanceMap[selectedEmployee.employeeId] || {};
+
+                                            const stats = {
+                                                totalDays: daysInMonth,
+                                                present: 0,
+                                                absent: 0,
+                                                leave: 0
+                                            };
+
+                                            Object.values(currentEmpAttendance).forEach(status => {
+                                                if (status === 'P') stats.present++;
+                                                else if (status === 'A') stats.absent++;
+                                                else if (status === 'L') stats.leave++;
+                                            });
+
+                                            return (
+                                                <PayrollForm
+                                                    employee={selectedEmployee}
+                                                    onUpdate={handlePayrollUpdate}
+                                                    stats={stats}
+                                                />
+                                            );
+                                        })()}
+                                        <AttendancePanel
+                                            employee={selectedEmployee}
+                                            onMarkAttendance={handleMarkAttendance}
+                                            onMonthChange={(monthStr) => setViewingMonth(monthStr)}
+                                            initialStatuses={attendanceMap[selectedEmployee.employeeId] || {}}
+                                        />
+                                    </>
+                                )}
                             </>
                         ) : (
                             <div className="glass-panel" style={{
