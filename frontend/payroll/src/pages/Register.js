@@ -24,8 +24,7 @@ const Register = () => {
     bankCode: "",
     accountType: "Savings",
 
-    // Employment
-    employeeId: "",
+    // Employment (❌ NO employeeId here)
     jobTitle: "",
     department: "",
     joiningDate: "",
@@ -60,9 +59,7 @@ const Register = () => {
     try {
       const res = await fetch("http://localhost:5000/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
           role
@@ -76,11 +73,17 @@ const Register = () => {
         return;
       }
 
-      alert("Registration successful");
-      navigate(`/login?role=${role}`);
+      // ✅ Navigate to success page with generated data
+      navigate("/employee-success", {
+        state: {
+          fullName: data.employee.fullName,
+          email: data.employee.email,
+          employeeId: data.employee.employeeId
+        }
+      });
+
     } catch (error) {
-      console.error("Fetch error:", error);
-      alert("Backend server not reachable");
+      alert("Server error");
     }
   };
 
@@ -92,9 +95,7 @@ const Register = () => {
     <div className="register-container fade-in">
       <div className="register-card">
         <div className="register-header">
-          <h2 className="register-title">
-            {role === "admin" ? "Admin" : "Employee"} Registration
-          </h2>
+          <h2 className="register-title">Employee Registration</h2>
           <p style={{ color: "var(--text-muted)" }}>
             Complete your profile to join the system
           </p>
@@ -122,10 +123,9 @@ const Register = () => {
           {/* 3. Employment */}
           <div className="form-section">
             <SectionTitle>3. Employment Details</SectionTitle>
-            <Input label="Employee ID" name="employeeId" value={formData.employeeId} onChange={handleChange} required />
             <Input label="Job Title" name="jobTitle" value={formData.jobTitle} onChange={handleChange} required />
             <Input label="Department" name="department" value={formData.department} onChange={handleChange} required />
-            <Input label="Joining Date" name="joiningDate" type="date" value={formData.joiningDate} onChange={handleChange} required />
+            <Input label="Joining Date" type="date" name="joiningDate" value={formData.joiningDate} onChange={handleChange} required />
           </div>
 
           {/* 4. Emergency */}
@@ -155,23 +155,17 @@ const Register = () => {
             <Input label="Confirm Password" type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
           </div>
 
-          {/* ✅ FIXED BUTTON */}
           <Button
             type="submit"
             variant="primary"
-            style={{
-              width: "100%",
-              padding: "14px 0",
-              fontSize: "1rem",
-              color: "white"
-            }}
+            style={{ width: "100%", padding: "14px 0" }}
           >
             Complete Registration
           </Button>
 
           <p style={{ textAlign: "center", marginTop: "1rem" }}>
             Already have an account?{" "}
-            <Link to={`/login?role=${role}`}>Login</Link>
+            <Link to="/login?role=employee">Login</Link>
           </p>
         </form>
       </div>

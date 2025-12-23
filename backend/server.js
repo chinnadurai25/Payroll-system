@@ -88,11 +88,13 @@ const createDefaultAdmin = async () => {
 createDefaultAdmin();
 
 /* ---------- REGISTER (EMPLOYEE ONLY) ---------- */
+/* ---------- REGISTER ---------- */
 app.post("/register", async (req, res) => {
   try {
+    // ❌ Block admin registration
     if (req.body.role === "admin") {
       return res.status(403).json({
-        message: "Admin registration not allowed"
+        message: "Admin registration not allowed",
       });
     }
 
@@ -101,19 +103,35 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
+    // 🔹 Generate Employee ID
+    const count = await Employee.countDocuments({ role: "employee" });
+    const employeeId = `Fly_emp${count + 1}`;
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     const employee = new Employee({
       ...req.body,
-      password: hashedPassword
+      employeeId, // ✅ auto generated
+      password: hashedPassword,
+      role: "employee",
     });
 
     await employee.save();
-    res.status(201).json({ message: "Registration successful" });
+
+    res.status(201).json({
+      message: "Registration successful",
+      employee: {
+        fullName: employee.fullName,
+        email: employee.email,
+        employeeId: employee.employeeId,
+      },
+    });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 /* ---------- LOGIN (ADMIN & EMPLOYEE) ---------- */
 app.post("/login", async (req, res) => {
