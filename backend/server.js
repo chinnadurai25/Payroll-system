@@ -232,7 +232,39 @@ app.get("/api/attendance", (req, res) => {
   const { employeeId } = req.query;
   res.json(attendanceStore[employeeId] || {});
 });
+app.post("/forgot-password", async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
 
+    // 🔍 Check Employee first
+    let user = await Employee.findOne({ email });
+    let userType = "employee";
+
+    // 🔍 If not employee, check Admin
+    if (!user) {
+      user = await Admin.findOne({ email });
+      userType = "admin";
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 🔐 Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+
+    await user.save();
+
+    res.json({
+      message: "Password updated successfully",
+      role: userType
+    });
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 /* ---------- SERVER ---------- */
 const PORT = process.env.PORT || 5000;

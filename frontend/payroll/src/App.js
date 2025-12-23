@@ -4,7 +4,6 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import Navbar from "./components/Navbar";
 import BackgroundSlider from "./components/BackgroundSlider";
-import EmployeeProfile from "./pages/EmployeeProfile";
 
 import Home from "./pages/Home";
 import RoleSelection from "./pages/RoleSelection";
@@ -13,14 +12,12 @@ import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import EmployeeSuccess from "./pages/EmployeeSuccess";
-
+import ForgotPassword from "./pages/ForgotPassword";
 import "./App.css";
 
-/* 🔐 Protected Route Component */
+/* 🔐 Protected Route */
 const ProtectedRoute = ({ children, allowedRole }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) return null; // wait for auth check
+  const { user } = useAuth();
 
   if (!user) {
     return <Navigate to={`/login?role=${allowedRole}`} replace />;
@@ -45,11 +42,11 @@ function App() {
         <Route path="/role" element={<RoleSelection />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
-        {/* ✅ Employee Registration Success (Public) */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* ✅ SUCCESS PAGE (PUBLIC) */}
         <Route path="/employee-success" element={<EmployeeSuccess />} />
 
-        {/* 🔐 Admin Dashboard */}
+        {/* 🔐 Protected Routes */}
         <Route
           path="/admin-dashboard"
           element={
@@ -59,7 +56,6 @@ function App() {
           }
         />
 
-        {/* 🔐 Common Employee Dashboard */}
         <Route
           path="/employee-dashboard"
           element={
@@ -68,18 +64,8 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-  path="/employee-profile"
-  element={
-    <ProtectedRoute allowedRole="employee">
-      <EmployeeProfile />
-    </ProtectedRoute>
-  }
-/>
-
-        {/* ❌ Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      
     </AuthProvider>
   );
 }
