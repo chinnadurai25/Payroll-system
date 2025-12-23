@@ -90,3 +90,36 @@ a {
   font-weight: 800;
   letter-spacing: -0.5px;
 }
+
+/* Print Utilities */
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .container {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .glass-panel {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+}

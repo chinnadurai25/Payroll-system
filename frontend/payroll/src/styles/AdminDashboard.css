@@ -35,3 +35,16 @@
 .details-panel::-webkit-scrollbar-thumb:hover {
     background: #999;
 }
+
+@media print {
+    .admin-dashboard-container {
+        display: block !important;
+        height: auto !important;
+    }
+
+    .details-panel {
+        overflow: visible !important;
+        height: auto !important;
+        padding: 0 !important;
+    }
+}
