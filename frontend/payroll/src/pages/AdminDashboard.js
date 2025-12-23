@@ -17,30 +17,24 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [attendanceMap, setAttendanceMap] = useState({});
 
-    // Fetch employees from backend with fallback to mock data
-    useEffect(() => {
-        const fetchEmployees = async () => {
-            try {
-                const res = await fetch('/api/employees');
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                setEmployees(Array.isArray(data) ? data : []);
-            } catch (error) {
-                console.warn('Failed to fetch employees from /api/employees, using mock data. Error:', error);
-                const mockEmployees = [
-                    { employeeId: 'EMP001', fullName: 'John Doe', email: 'john@example.com', payroll: { basicPay: 50000, hra: 20000, allowances: 5000, tax: 5 } },
-                    { employeeId: 'EMP002', fullName: 'Jane Smith', email: 'jane@example.com', payroll: { basicPay: 60000, hra: 25000, allowances: 6000, tax: 6 } },
-                    { employeeId: 'EMP003', fullName: 'Robert Johnson', email: 'robert@example.com', payroll: { basicPay: 55000, hra: 22000, allowances: 5500, tax: 5.5 } },
-                    { employeeId: 'EMP004', fullName: 'Emily Davis', email: 'emily@example.com', payroll: { basicPay: 48000, hra: 19000, allowances: 4800, tax: 4.5 } },
-                ];
-                setEmployees(mockEmployees);
-            } finally {
-                setLoading(false);
-            }
-        };
+  useEffect(() => {
+    const fetchEmployees = async () => {
+        try {
+            const res = await fetch('http://localhost:5000/api/employees');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            setEmployees(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.warn('Failed to fetch employees from /api/employees');
+            setEmployees([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        fetchEmployees();
-    }, []);
+    fetchEmployees();
+}, []);
+
 
     const handleLogout = () => {
         logout();
