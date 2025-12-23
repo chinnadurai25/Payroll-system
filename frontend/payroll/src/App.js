@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
+import EmployeeSuccess from "./pages/EmployeeSuccess";
 
 import "./App.css";
 
@@ -36,13 +37,16 @@ function App() {
       <Navbar />
 
       <Routes>
-        {/* Public */}
+        {/* 🌐 Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/role" element={<RoleSelection />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected */}
+        {/* ✅ SUCCESS PAGE (PUBLIC) */}
+        <Route path="/employee-success" element={<EmployeeSuccess />} />
+
+        {/* 🔐 Protected Routes */}
         <Route
           path="/admin-dashboard"
           element={
