@@ -12,7 +12,7 @@ import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import EmployeeSuccess from "./pages/EmployeeSuccess";
-
+import ForgotPassword from "./pages/ForgotPassword";
 import "./App.css";
 
 /* 🔐 Protected Route */
@@ -42,7 +42,7 @@ function App() {
         <Route path="/role" element={<RoleSelection />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         {/* ✅ SUCCESS PAGE (PUBLIC) */}
         <Route path="/employee-success" element={<EmployeeSuccess />} />
 
@@ -65,6 +65,7 @@ function App() {
           }
         />
       </Routes>
+      
     </AuthProvider>
   );
 }
