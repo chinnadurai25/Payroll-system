@@ -145,6 +145,70 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ message: "Login error" });
   }
 });
+app.get("/api/employees", async (req, res) => {
+  try {
+    const employees = await Employee.find({}, { password: 0, __v: 0 });
+
+    const formatted = employees.map(emp => ({
+      _id: emp._id,
+      employeeId: emp.employeeId,
+      fullName: emp.fullName,
+      email: emp.email,
+      payroll: emp.payroll || {
+        basicPay: 0,
+        hra: 0,
+        allowances: 0,
+        tax: 0
+      }
+    }));
+
+    res.json(formatted);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch employees" });
+  }
+});
+
+/* ---------- UPDATE PAYROLL (PayrollForm) ---------- */
+app.put("/api/employees/:employeeId/payroll", async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+    const payroll = req.body;
+
+    const updated = await Employee.findOneAndUpdate(
+      { employeeId },
+      { payroll },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.json({ message: "Payroll updated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Payroll update failed" });
+  }
+});
+
+/* ---------- ATTENDANCE (Frontend compatible mock-ready API) ---------- */
+let attendanceStore = {}; // in-memory (can be moved to DB later)
+
+app.post("/api/attendance", (req, res) => {
+  const { employeeId, date, status } = req.body;
+
+  if (!attendanceStore[employeeId]) {
+    attendanceStore[employeeId] = {};
+  }
+
+  attendanceStore[employeeId][date] = status;
+  res.json({ message: "Attendance saved" });
+});
+
+app.get("/api/attendance", (req, res) => {
+  const { employeeId } = req.query;
+  res.json(attendanceStore[employeeId] || {});
+});
+
 
 /* ---------- SERVER ---------- */
 const PORT = process.env.PORT || 5000;
