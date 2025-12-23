@@ -14,7 +14,7 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-/* ---------- SCHEMA ---------- */
+/* ---------- EMPLOYEE SCHEMA ---------- */
 const employeeSchema = new mongoose.Schema(
   {
     role: { type: String, default: "employee" },
@@ -43,16 +43,59 @@ const employeeSchema = new mongoose.Schema(
     consent: Boolean,
 
     email: { type: String, unique: true },
-    password: String,
+    password: String
   },
   { timestamps: true }
 );
 
 const Employee = mongoose.model("Employee", employeeSchema);
 
-/* ---------- REGISTER ---------- */
+/* ---------- ADMIN SCHEMA (NEW COLLECTION) ---------- */
+const adminSchema = new mongoose.Schema(
+  {
+    fullName: String,
+    email: { type: String, unique: true },
+    password: String
+  },
+  { timestamps: true }
+);
+
+const Admin = mongoose.model("Admin", adminSchema);
+
+/* ---------- CREATE DEFAULT ADMIN (RUNS ONCE) ---------- */
+const createDefaultAdmin = async () => {
+  try {
+    const adminExists = await Admin.findOne({ email: "admin@payroll.com" });
+
+    if (!adminExists) {
+      const hashedPassword = await bcrypt.hash("admin123", 10);
+
+      await Admin.create({
+        fullName: "System Admin",
+        email: "admin@payroll.com",
+        password: hashedPassword
+      });
+
+      console.log("✅ Default admin created");
+    } else {
+      console.log("ℹ️ Admin already exists");
+    }
+  } catch (err) {
+    console.error("❌ Admin creation error:", err);
+  }
+};
+
+createDefaultAdmin();
+
+/* ---------- REGISTER (EMPLOYEE ONLY) ---------- */
 app.post("/register", async (req, res) => {
   try {
+    if (req.body.role === "admin") {
+      return res.status(403).json({
+        message: "Admin registration not allowed"
+      });
+    }
+
     const exists = await Employee.findOne({ email: req.body.email });
     if (exists) {
       return res.status(400).json({ message: "User already exists" });
@@ -62,36 +105,45 @@ app.post("/register", async (req, res) => {
 
     const employee = new Employee({
       ...req.body,
-      password: hashedPassword,
+      password: hashedPassword
     });
 
     await employee.save();
     res.status(201).json({ message: "Registration successful" });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-/* ---------- LOGIN ---------- */
+/* ---------- LOGIN (ADMIN & EMPLOYEE) ---------- */
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
-  const user = await Employee.findOne({ email });
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+  try {
+    let user;
+
+    if (role === "admin") {
+      user = await Admin.findOne({ email });
+    } else {
+      user = await Employee.findOne({ email });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    res.json({
+      role,
+      email: user.email
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Login error" });
   }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({ message: "Invalid password" });
-  }
-
-  res.json({
-    message: "Login successful",
-    role: user.role,
-    employeeId: user.employeeId,
-  });
 });
 
 /* ---------- SERVER ---------- */

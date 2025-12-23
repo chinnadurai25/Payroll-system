@@ -155,18 +155,19 @@ const Register = () => {
             <Input label="Confirm Password" type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
           </div>
 
+          {/* ✅ FIXED BUTTON */}
           <Button
-  type="submit"
-  variant="primary"
-  style={{
-    width: "100%",
-    padding: "14px 0",
-    fontSize: "1.0rem",
-    fontcolor: "white",
-  }}
->
-  Complete Registration
-</Button>
+            type="submit"
+            variant="primary"
+            style={{
+              width: "100%",
+              padding: "14px 0",
+              fontSize: "1rem",
+              color: "white"
+            }}
+          >
+            Complete Registration
+          </Button>
 
           <p style={{ textAlign: "center", marginTop: "1rem" }}>
             Already have an account?{" "}
