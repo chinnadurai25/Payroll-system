@@ -1,15 +1,38 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
+  const { user, logout } = useAuth();
+  const location = useLocation();
+
+  // hide navbar completely on dashboards (optional)
+  const hideNavbar =
+    location.pathname.includes("employee-dashboard") ||
+    location.pathname.includes("admin-dashboard");
+
+  if (hideNavbar) return null;
+
   return (
     <nav style={styles.nav}>
       <h2 style={styles.logo}>PayrollPro</h2>
 
       <div style={styles.links}>
         <Link to="/" style={styles.link}>Home</Link>
-        <Link to="/login" style={styles.link}>Login</Link>
-        
+
+        {/* ✅ Show Login only if NOT logged in */}
+        {!user && (
+          <Link to="/login" style={styles.link}>
+            Login
+          </Link>
+        )}
+
+        {/* ✅ If logged in (optional for later use) */}
+        {user && (
+          <span style={styles.userText}>
+            {user.fullName || user.email}
+          </span>
+        )}
       </div>
     </nav>
   );
@@ -37,13 +60,9 @@ const styles = {
     textDecoration: "none",
     fontSize: "16px"
   },
-  signupBtn: {
-    backgroundColor: "#38bdf8",
-    color: "#0f172a",
-    padding: "8px 14px",
-    borderRadius: "6px",
-    textDecoration: "none",
-    fontWeight: "500"
+  userText: {
+    color: "#38bdf8",
+    fontSize: "14px"
   }
 };
 
