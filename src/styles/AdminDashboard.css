@@ -1,0 +1,50 @@
+.admin-dashboard-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+    height: 70vh;
+    /* Fixed height for scrollable areas */
+}
+
+@media (max-width: 900px) {
+    .admin-dashboard-container {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+}
+
+.details-panel {
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Scrollbar styling */
+.details-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.details-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.details-panel::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.details-panel::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+@media print {
+    .admin-dashboard-container {
+        display: block !important;
+        height: auto !important;
+    }
+
+    .details-panel {
+        overflow: visible !important;
+        height: auto !important;
+        padding: 0 !important;
+    }
+}
