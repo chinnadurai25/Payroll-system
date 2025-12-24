@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
+import { useSearchParams } from 'react-router-dom';
 import EmployeeList from '../components/EmployeeList';
 import PayrollForm from '../components/PayrollForm';
 import AttendancePanel from '../components/AttendancePanel';
@@ -9,9 +7,6 @@ import SalarySlip from '../components/SalarySlip';
 import '../styles/AdminDashboard.css';
 
 const AdminDashboard = () => {
-    const { logout } = useAuth();
-    const navigate = useNavigate();
-
     // State
     const [employees, setEmployees] = useState([]);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -21,7 +16,8 @@ const AdminDashboard = () => {
         const now = new Date();
         return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     });
-    const [viewMode, setViewMode] = useState('config'); // 'config' or 'slip'
+    const [searchParams, setSearchParams] = useSearchParams();
+    const viewMode = searchParams.get('v') || 'config'; // 'config' or 'slip'
     const [pendingPayrollData, setPendingPayrollData] = useState(null);
 
     useEffect(() => {
@@ -42,30 +38,22 @@ const AdminDashboard = () => {
         fetchEmployees();
     }, []);
 
-
-    const handleLogout = () => {
-        logout();
-        navigate('/');
-    };
-
     const handleEmployeeSelect = async (employee) => {
-  try {
-    const res = await fetch(
-      `http://localhost:5000/api/employees/${employee.employeeId}`
-    );
+        try {
+            const res = await fetch(
+                `http://localhost:5000/api/employees/${employee.employeeId}`
+            );
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch employee");
-    }
+            if (!res.ok) {
+                throw new Error("Failed to fetch employee");
+            }
 
-    const fullEmployee = await res.json();
-    setSelectedEmployee(fullEmployee);
-  } catch (err) {
-    console.error("Failed to fetch employee details", err);
-  }
-};
-
-
+            const fullEmployee = await res.json();
+            setSelectedEmployee(fullEmployee);
+        } catch (err) {
+            console.error("Failed to fetch employee details", err);
+        }
+    };
 
     const handlePayrollUpdate = (employeeId, payrollData) => {
         console.log(`Updating payroll for ${employeeId}:`, payrollData);
@@ -79,7 +67,7 @@ const AdminDashboard = () => {
 
         // Save current calc data and show slip
         setPendingPayrollData(payrollData);
-        setViewMode('slip');
+        setSearchParams({ v: 'slip' });
     };
 
     const handleMarkAttendance = async (employeeId, date, status) => {
@@ -92,7 +80,6 @@ const AdminDashboard = () => {
         // Attempt to POST to backend; if unavailable, just log and continue
         try {
             const res = await fetch('http://localhost:5000/api/attendance', {
-
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ employeeId, date, status })
@@ -153,19 +140,41 @@ const AdminDashboard = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     marginBottom: '30px',
+                    paddingTop: '60px', // For fixed navbar
                     paddingBottom: '20px',
-                    borderBottom: '1px solid var(--border-color)'
                 }}>
                     <div>
-                        <h1 className="title-gradient" style={{ fontSize: '2rem' }}>Admin Portal</h1>
-                        <p style={{ color: 'var(--text-muted)' }}>Manage employees, payroll, and attendance</p>
+                        <h1 className="title-gradient" style={{ fontSize: '2.5rem', marginBottom: '5px' }}>Admin Dashboard</h1>
+                        <p style={{ color: 'var(--text-muted)', fontWeight: '500' }}>Strategic Payroll & Workforce Intelligence</p>
                     </div>
-                    <Button onClick={handleLogout} variant="secondary">Sign Out</Button>
+                </div>
+
+                {/* Admin Quick Stats */}
+                <div className="no-print" style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '20px',
+                    marginBottom: '30px'
+                }}>
+                    <div className="fly-card" style={{ padding: '20px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Total Workforce</div>
+                        <div style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--primary)' }}>{employees.length}</div>
+                    </div>
+                    <div className="fly-card" style={{ padding: '20px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Month Focus</div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: '800', marginTop: '5px' }}>
+                            {new Date(viewingMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}
+                        </div>
+                    </div>
+                    <div className="fly-card" style={{ padding: '20px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Active System</div>
+                        <div style={{ fontSize: '1rem', fontWeight: '700', color: '#10b981', marginTop: '10px' }}>🟢 Healthy</div>
+                    </div>
                 </div>
 
                 <div className="admin-dashboard-container">
                     {/* Left Panel: Employee List */}
-                    <div className="glass-panel no-print" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    <div className="fly-card no-print" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                         <EmployeeList
                             employees={employees}
                             onSelect={handleEmployeeSelect}
@@ -193,7 +202,7 @@ const AdminDashboard = () => {
                                             });
                                             return s;
                                         })()}
-                                        onBack={() => setViewMode('config')}
+                                        onBack={() => setSearchParams({ v: 'config' })}
                                     />
                                 ) : (
                                     <>

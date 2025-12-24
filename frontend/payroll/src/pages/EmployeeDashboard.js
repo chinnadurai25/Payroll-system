@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import SalarySlip from '../components/SalarySlip';
 
 const EmployeeDashboard = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
+    const { user } = useAuth();
 
     // State
     const [employeeData, setEmployeeData] = useState(null);
@@ -16,17 +15,13 @@ const EmployeeDashboard = () => {
         const d = new Date();
         return new Date(d.getFullYear(), d.getMonth(), 1);
     });
-    const [viewMode, setViewMode] = useState('overview'); // 'overview' or 'slip'
-    const [showMenu, setShowMenu] = useState(false); // For future use/dropdown if needed
+    const [searchParams, setSearchParams] = useSearchParams();
+    const viewMode = searchParams.get('v') || 'overview'; // 'overview' or 'slip'
 
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
     const viewingMonth = `${year}-${String(month + 1).padStart(2, '0')}`;
 
-    const handleLogout = () => {
-        logout();
-        navigate('/');
-    };
 
     // Fetch full employee details including payroll config
     useEffect(() => {
@@ -129,22 +124,21 @@ const EmployeeDashboard = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginBottom: '30px',
+                    marginBottom: '40px',
+                    paddingTop: '60px', // Offset for fixed navbar
                     paddingBottom: '20px',
-                    borderBottom: '1px solid var(--border-color)'
                 }}>
                     <div>
-                        <h1 className="title-gradient" style={{ fontSize: '2rem' }}>Employee Portal</h1>
-                        <p style={{ color: 'var(--text-muted)' }}>Welcome back, {employeeData?.fullName || user?.email}</p>
+                        <h1 className="title-gradient" style={{ fontSize: '2.5rem', marginBottom: '5px' }}>My Portfolio</h1>
+                        <p style={{ color: 'var(--text-muted)', fontWeight: '500' }}>Welcome, {employeeData?.fullName || user?.email}</p>
                     </div>
                     <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#f3f4f6', padding: '6px 12px', borderRadius: '20px' }}>
-                            <button onClick={handlePrev} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>◀</button>
-                            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{monthLabel}</span>
-                            <button onClick={handleNext} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>▶</button>
+                        <div className="fly-card" style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '10px 20px', borderRadius: '50px' }}>
+                            <button onClick={handlePrev} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '1.2rem', color: 'var(--primary)' }}>◀</button>
+                            <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-main)', minWidth: '140px', textAlign: 'center' }}>{monthLabel}</span>
+                            <button onClick={handleNext} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '1.2rem', color: 'var(--primary)' }}>▶</button>
                         </div>
-                        <Button onClick={() => setViewMode('slip')} variant="primary" style={{ padding: '8px 20px' }}>📄 Pay Slip</Button>
-                        <Button onClick={handleLogout} variant="secondary">Sign Out</Button>
+                        <Button onClick={() => setSearchParams({ v: 'slip' })} variant="primary" style={{ padding: '12px 28px' }}>View Pay Slip</Button>
                     </div>
                 </div>
 
@@ -154,18 +148,18 @@ const EmployeeDashboard = () => {
                             employee={employeeData}
                             payrollData={employeeData?.payroll}
                             stats={stats}
-                            onBack={() => setViewMode('overview')}
+                            onBack={() => setSearchParams({ v: 'overview' })}
                         />
                     </div>
                 )}
 
                 {viewMode === 'overview' && (
                     <>
-                        <div className="glass-panel" style={{ marginBottom: '30px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                                <h2 style={{ margin: 0, color: 'var(--primary)', fontSize: '1.5rem' }}>Financial Overview</h2>
-                                <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                                    Attendance: {stats.present} / {stats.totalDays} Days Present
+                        <div className="fly-card" style={{ marginBottom: '30px', padding: '30px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                                <h2 style={{ margin: 0, color: 'var(--primary)', fontSize: '1.8rem', fontWeight: '800' }}>Financial Insights</h2>
+                                <div style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: '700', background: 'var(--secondary)', padding: '6px 16px', borderRadius: '50px' }}>
+                                    Attendance: {stats.present} / {stats.totalDays} Days
                                 </div>
                             </div>
 
@@ -177,8 +171,8 @@ const EmployeeDashboard = () => {
                                     color: 'white',
                                     boxShadow: 'var(--shadow-lg)'
                                 }}>
-                                    <h3 style={{ fontSize: '0.85rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>Estimated Net Pay</h3>
-                                    <p style={{ fontSize: '3rem', fontWeight: '700', marginTop: '10px' }}>₹{payrollResults.netPayable.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                                    <h3 style={{ fontSize: '0.9rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '800' }}>Net Earnings</h3>
+                                    <p style={{ fontSize: '3.5rem', fontWeight: '900', marginTop: '15px', letterSpacing: '-1px' }}>₹{payrollResults.netPayable.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                                     <span style={{
                                         display: 'inline-block',
                                         marginTop: '10px',

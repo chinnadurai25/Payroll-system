@@ -23,11 +23,11 @@ const Home = () => {
 
           {/* Right Image */}
           <div className="hero-image">
-  <img src={heroMan} alt="Payroll Professional" />
-</div>
+            <img src={heroMan} alt="Payroll Professional" />
+          </div>
         </div>
       </section>
-      
+
 
       {/* About Section */}
       <section className="about">
@@ -57,7 +57,7 @@ const Home = () => {
 
       {/* Footer */}
       <footer className="footer">
-        <p>© 2025 Payroll Management System. All rights reserved.</p>
+        <p>© 2025 Fly Towards Digital Innovation. All rights reserved.</p>
       </footer>
     </div>
   );

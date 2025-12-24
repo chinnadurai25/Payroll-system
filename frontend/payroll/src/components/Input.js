@@ -41,7 +41,7 @@ const Input = ({ label, type = 'text', name, value, onChange, placeholder, requi
                 style={inputStyle}
                 onFocus={(e) => {
                     e.target.style.borderColor = 'var(--primary)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(30, 58, 138, 0.1)';
+                    e.target.style.boxShadow = '0 0 0 4px rgba(14, 165, 233, 0.15)';
                 }}
                 onBlur={(e) => {
                     e.target.style.borderColor = 'var(--border-color)';

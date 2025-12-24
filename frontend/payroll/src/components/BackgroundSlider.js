@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import '../styles/BackgroundSlider.css';
 
 // Import images
-import bg1 from '../assets/bg-1.png';
-import bg2 from '../assets/bg-2.png';
-import bg3 from '../assets/bg-3.png';
+import bg1 from '../assets/sky1.png';
+import bg2 from '../assets/sky2.png';
+import bg3 from '../assets/sky3.png';
 
 const BackgroundSlider = () => {
     const images = [bg1, bg2, bg3];

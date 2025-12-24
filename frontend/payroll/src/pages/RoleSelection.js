@@ -11,15 +11,15 @@ const RoleSelection = () => {
         <div className="role-selection-container fade-in">
             <div className="glass-panel" style={{ maxWidth: '800px', width: '90%', padding: '40px', background: 'rgba(255, 255, 255, 0.95)' }}>
                 <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '20px', textAlign: 'center' }}>
-                    <h1 className="title-gradient" style={{ fontSize: '3rem', marginBottom: '10px' }}>Payroll System</h1>
-                    <p style={{ color: '#64748b', fontSize: '1.2rem', fontWeight: '500' }}>Secure Enterprise Portal</p>
+                    <h1 className="title-gradient" style={{ fontSize: '3rem', marginBottom: '10px' }}>Fly Payroll</h1>
+                    <p style={{ color: '#64748b', fontSize: '1.2rem', fontWeight: '500' }}>Corporate Authentication Gateway</p>
                 </div>
 
                 <div className="role-cards-wrapper">
                     {/* Admin Card */}
                     <div className="role-card" onClick={() => navigate('/login?role=admin')}>
                         <div className="role-icon">🛡️</div>
-                        <h3 className="role-title">Administrative Access</h3>
+                        <h3 className="role-title">ADMIN</h3>
                         <p className="role-desc">
                             Manage employee records, process payroll, and view financial reports.
                         </p>
@@ -32,7 +32,7 @@ const RoleSelection = () => {
                     {/* Employee Card */}
                     <div className="role-card" onClick={() => navigate('/login?role=employee')}>
                         <div className="role-icon">💼</div>
-                        <h3 className="role-title">Employee Access</h3>
+                        <h3 className="role-title">EMPLOYEE</h3>
                         <p className="role-desc">
                             View payslips, manage direct deposit, and download tax forms.
                         </p>

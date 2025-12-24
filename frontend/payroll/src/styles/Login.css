@@ -6,65 +6,115 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* ================= PAGE WRAPPER ================= */
-/* Video is already running in background */
-.login-container {
+/* ================= PAGE BACKGROUND ================= */
+.login-page {
   min-height: 100vh;
+  background: linear-gradient(-45deg, #0ea5e9, #2563eb, #38bdf8, #1e40af);
+  background-size: 400% 400%;
+  animation: gradientFlow 14s ease infinite;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* floating blobs */
+.login-page::before,
+.login-page::after {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 70%);
+  border-radius: 50%;
+  animation: floatBlob 10s ease-in-out infinite alternate;
+}
+
+.login-page::before {
+  top: -120px;
+  left: -120px;
+}
+
+.login-page::after {
+  bottom: -140px;
+  right: -140px;
+  animation-delay: 2s;
+}
+
+/* ================= CONTAINER ================= */
+.login-container {
+  width: 100%;
   padding: 20px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
 }
 
 /* ================= LOGIN CARD ================= */
 .login-card {
   width: 100%;
-  max-width: 340px;          /* 🔽 reduced size */
-  padding: 2rem 1.9rem;
+  max-width: 360px;
+  padding: 2.2rem 2rem;
+  border-radius: 20px;
 
-  border-radius: 16px;
-
-  /* crystal glass effect */
   background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
 
   border: 1px solid rgba(255, 255, 255, 0.35);
 
-  box-shadow:
-    0 18px 40px rgba(15, 23, 42, 0.35),
-    inset 0 0 0 rgba(255, 255, 255, 0.2);
-
-  animation: cardFade 0.6s ease;
+  box-shadow: 0 25px 55px rgba(15, 23, 42, 0.35);
+  animation: cardAppear 0.7s ease;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-/* ================= TITLE ================= */
-.login-card h2 {
+.login-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 40px 80px rgba(15, 23, 42, 0.45);
+}
+
+/* ================= HEADER ================= */
+.login-header {
   text-align: center;
-  font-size: 1.55rem;
-  font-weight: 700;
-  margin-bottom: 1.6rem;
-  color: #ffffff;
+  margin-bottom: 2rem;
 }
 
-/* ================= LABEL ================= */
-.login-card label {
+.login-title {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #93c5fd, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.login-subtitle {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.9);
+}
+
+/* ================= FORM ================= */
+.form-group {
+  margin-bottom: 1.3rem;
+}
+
+.form-group label {
   font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 4px;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 6px;
   display: block;
 }
 
-/* ================= INPUT ================= */
-.login-card input {
+/* INPUT FIELD — VISIBLE HOVER */
+.form-group input {
   width: 100%;
-  padding: 11px 13px;
-  margin-bottom: 1rem;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.45);
 
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-
-  background: rgba(255, 255, 255, 0.12);  /* transparent fixed */
+  background: rgba(255,255,255,0.18);
   color: #ffffff;
   font-size: 0.9rem;
 
@@ -72,42 +122,30 @@
   transition: all 0.3s ease;
 }
 
-/* placeholder */
-.login-card input::placeholder {
-  color: rgba(255, 255, 255, 0.65);
+.form-group input::placeholder {
+  color: rgba(255,255,255,0.7);
 }
 
 /* hover */
-.login-card input:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.55);
+.form-group input:hover {
+  background: rgba(255,255,255,0.26);
+  border-color: #bfdbfe;
+  box-shadow: 0 8px 18px rgba(59,130,246,0.25);
+  transform: translateY(-1px);
 }
 
-/* focus glow */
-.login-card input:focus {
+/* focus */
+.form-group input:focus {
+  background: rgba(255,255,255,0.3);
   border-color: #93c5fd;
-  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.35);
-  background: rgba(255, 255, 255, 0.22);
-}
-
-/* ================= FORGOT PASSWORD ================= */
-.forgot-link {
-  font-size: 0.8rem;
-  color: #bfdbfe;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.forgot-link:hover {
-  color: #ffffff;
-  text-shadow: 0 0 10px rgba(191, 219, 254, 0.9);
+  box-shadow: 0 0 0 3px rgba(147,197,253,0.45);
 }
 
 /* ================= LOGIN BUTTON ================= */
-.login-card button {
+.login-btn {
   width: 100%;
+  padding: 12px;
   margin-top: 0.6rem;
-  padding: 11px;
 
   border-radius: 999px;
   border: none;
@@ -116,80 +154,119 @@
   background: linear-gradient(135deg, #60a5fa, #3b82f6);
   color: #ffffff;
 
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  letter-spacing: 0.3px;
 
   position: relative;
   overflow: hidden;
-
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* crystal shine */
-.login-card button::before {
+.login-btn::before {
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(
     120deg,
     transparent,
-    rgba(255, 255, 255, 0.55),
+    rgba(255,255,255,0.6),
     transparent
   );
   transform: translateX(-120%);
   transition: transform 0.7s ease;
 }
 
-.login-card button:hover::before {
+.login-btn:hover::before {
   transform: translateX(120%);
 }
 
-/* hover lift */
-.login-card button:hover {
+.login-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 30px rgba(59, 130, 246, 0.55);
+  box-shadow: 0 18px 35px rgba(59,130,246,0.55);
 }
 
-/* click */
-.login-card button:active {
+.login-btn:active {
   transform: translateY(0);
-  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 10px 20px rgba(59,130,246,0.4);
 }
 
-/* ================= BACK LINK ================= */
-.login-card a[href="/"] {
+/* ================= FORGOT PASSWORD ================= */
+.forgot-link {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #bfdbfe;
+  text-decoration: none;
+  position: relative;
+}
+
+.forgot-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(90deg, #93c5fd, #38bdf8);
+  transition: width 0.4s ease;
+}
+
+.forgot-link:hover {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(147,197,253,0.9);
+}
+
+.forgot-link:hover::after {
+  width: 100%;
+}
+
+/* ================= BACK LINK (DIFFERENT EFFECT) ================= */
+.back-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 1.2rem;
+  margin-top: 14px;
 
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
   text-decoration: none;
 
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
-.login-card a[href="/"]::before {
+.back-link::before {
   content: "←";
   transition: transform 0.3s ease;
 }
 
-.login-card a[href="/"]:hover {
+.back-link:hover {
   color: #ffffff;
   transform: translateX(-3px);
 }
 
-.login-card a[href="/"]:hover::before {
-  transform: translateX(-3px);
+.back-link:hover::before {
+  transform: translateX(-4px);
 }
 
-/* ================= ANIMATION ================= */
-@keyframes cardFade {
+/* ================= ANIMATIONS ================= */
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes floatBlob {
+  from { transform: translateY(0); }
+  to { transform: translateY(40px); }
+}
+
+@keyframes cardAppear {
   from {
     opacity: 0;
-    transform: translateY(18px) scale(0.97);
+    transform: translateY(25px) scale(0.97);
   }
   to {
     opacity: 1;
@@ -201,5 +278,8 @@
 @media (max-width: 420px) {
   .login-card {
     padding: 1.8rem 1.6rem;
+  }
+  .login-title {
+    font-size: 1.7rem;
   }
 }

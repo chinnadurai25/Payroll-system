@@ -1,31 +1,38 @@
 :root {
-  /* Corporate Palette - "Trust & Stability" */
-  --primary: #1e3a8a;
-  /* Deep Royal Blue */
-  --primary-hover: #1e40af;
-  --secondary: #64748b;
-  /* Slate 500 */
-  --accent: #0284c7;
-  /* Sky 600 */
+  /* Fly Cloud Palette - "Blue & White" Premium */
+  --primary: #0ea5e9;
+  /* Fly Blue */
+  --primary-hover: #0284c7;
+  /* Darker Fly Blue */
+  --secondary: #f0f9ff;
+  /* Very Light Blue/White */
+  --accent: #38bdf8;
+  /* Lighter Fly Blue */
 
-  --bg-body: #f1f5f9;
-  /* Slate 100 - Crisp Corporate Background */
-  --bg-card: #ffffff;
+  --fly-gradient: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+  --ocean-gradient: linear-gradient(135deg, #0c4a6e 0%, #1e3a8a 100%);
+  --glass-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
 
-  --text-main: #0f172a;
-  /* Slate 900 */
+  --bg-body: #f8fafc;
+  /* Clear Fly White */
+  --bg-card: rgba(255, 255, 255, 0.7);
+  /* Glassmorphism Base */
+
+  --text-main: #0c4a6e;
+  /* Deep Ocean Blue for text */
   --text-muted: #64748b;
 
-  --border-color: #e2e8f0;
-  --input-bg: #ffffff;
+  --border-color: rgba(255, 255, 255, 0.5);
+  --input-bg: rgba(255, 255, 255, 0.9);
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-premium: 0 10px 40px -10px rgba(14, 165, 233, 0.2);
 
-  --radius: 8px;
-  /* Slightly squarer for professional look */
-  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius: 20px;
+  /* Rounder corners for a softer feel */
+  --font-main: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 
@@ -38,8 +45,8 @@
 body {
   font-family: var(--font-main);
   background-color: var(--bg-body);
-  /* Subtle mesh pattern for top header area feel */
-  background-image: linear-gradient(to bottom, #dfe3f0 0%, #f1f5f9 300px);
+  /* Lighter, fly-like gradient */
+  background-image: linear-gradient(135deg, #e0f2fe 0%, #f8fafc 100%);
   color: var(--text-main);
   min-height: 100vh;
   line-height: 1.6;
@@ -76,17 +83,36 @@ a {
 }
 
 .glass-panel {
-  /* Changed from Glass to Solid Card for MNC look */
   background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
   padding: 2.5rem;
 }
 
+/* Glassmorphic Utilities */
+.fly-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-premium);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fly-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px -15px rgba(14, 165, 233, 0.3);
+}
+
 .title-gradient {
-  /* Solid professional color instead of flashy gradient */
-  color: var(--primary);
+  background: var(--fly-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-weight: 800;
   letter-spacing: -0.5px;
 }

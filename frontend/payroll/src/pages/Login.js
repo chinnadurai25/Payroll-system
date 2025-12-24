@@ -44,11 +44,11 @@ const Login = () => {
 
       // ✅ FIXED: store fullName
       login({
-  email: data.email,
-  role: data.role,
-  fullName: data.fullName,   // 👈 MATCH BACKEND
-  employeeId: data.employeeId
-});
+        email: data.email,
+        role: data.role,
+        fullName: data.fullName,   // 👈 MATCH BACKEND
+        employeeId: data.employeeId
+      });
 
 
       // ✅ Redirect
@@ -64,41 +64,45 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h2>{role === "admin" ? "Admin" : "Employee"} Login</h2>
+    <div className="login-page">
+      <div className="login-container">
+        <div className="login-card">
+          <div className="login-header">
+            <h1 className="login-title">{role === "admin" ? "Admin" : "Employee"} Login</h1>
+            <p className="login-subtitle">Please enter your credentials to continue</p>
+          </div>
 
-        <form onSubmit={handleSubmit}>
-          <Input
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+          <form onSubmit={handleSubmit}>
+            <Input
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
 
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <div style={{ textAlign: "right", marginBottom: "12px" }}>
-  <a href="/forgot-password" className="forgot-link">
-    Forgot Password?
-  </a>
-</div>
+            <Input
+              label="Password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <div style={{ textAlign: "right", marginBottom: "12px" }}>
+              <a href="/forgot-password" className="forgot-link">
+                Forgot Password?
+              </a>
+            </div>
 
+            <Button type="submit" variant="primary">
+              Login
+            </Button>
+          </form>
 
-          <Button type="submit" variant="primary">
-            Login
-          </Button>
-        </form>
-
-        <Link to="/">← Back</Link>
+          <Link to="/" className="back-link">Back to Home</Link>
+        </div>
       </div>
     </div>
   );

@@ -18,22 +18,17 @@
 /* ================= REGISTER CARD ================= */
 .register-card {
   width: 100%;
-  max-width: 860px;
+  max-width: 900px;
   padding: 3rem;
-
   border-radius: 20px;
 
   /* glass crystal */
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
-
   border: 1px solid rgba(255, 255, 255, 0.35);
 
-  box-shadow:
-    0 25px 55px rgba(15, 23, 42, 0.45),
-    inset 0 0 0 rgba(255, 255, 255, 0.2);
-
+  box-shadow: 0 25px 55px rgba(15, 23, 42, 0.45);
   animation: cardFade 0.7s ease;
 }
 
@@ -46,13 +41,14 @@
 .register-title {
   font-size: 2.2rem;
   font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #93c5fd, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .register-header p {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* ================= FORM SECTIONS ================= */
@@ -61,7 +57,6 @@
   border-radius: 14px;
   padding: 1.6rem;
   margin-bottom: 2rem;
-
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
@@ -84,91 +79,83 @@
   border-radius: 2px;
 }
 
-/* ================= LABEL ================= */
-.register-card label {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-bottom: 6px;
-  color: rgba(255, 255, 255, 0.9);
+/* ================= GRID ================= */
+.form-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
-/* ================= INPUT ================= */
+/* ================= LABEL ================= */
+.register-card label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #ffffff;
+}
+
+/* ================= INPUTS ================= */
 .register-card input,
 .register-card select,
 .register-card textarea {
   width: 100%;
   padding: 12px 14px;
   margin-bottom: 1.2rem;
-
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-
-  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
   font-size: 0.9rem;
-
   outline: none;
   transition: all 0.3s ease;
 }
 
-/* placeholder */
 .register-card input::placeholder {
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* hover */
 .register-card input:hover,
 .register-card select:hover,
 .register-card textarea:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: #bfdbfe;
   transform: translateY(-1px);
 }
 
-/* focus */
+/* focus glow */
 .register-card input:focus,
 .register-card select:focus,
 .register-card textarea:focus {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.28);
   border-color: #93c5fd;
-  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.35);
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.45);
 }
 
 /* ================= CHECKBOX ================= */
 .register-card input[type="checkbox"] {
-  width: auto;
-  margin-right: 8px;
   accent-color: #60a5fa;
+  margin-right: 6px;
 }
 
-.register-card label input[type="checkbox"] + span {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* ================= PRIMARY BUTTON ================= */
+/* ================= BUTTON ================= */
 .register-card button {
   width: 100%;
   padding: 13px;
   margin-top: 1rem;
-
   border-radius: 999px;
   border: none;
   cursor: pointer;
-
   background: linear-gradient(135deg, #60a5fa, #3b82f6);
   color: #ffffff;
-
   font-size: 0.95rem;
   font-weight: 600;
-  letter-spacing: 0.3px;
-
   position: relative;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* crystal shine */
+/* shine */
 .register-card button::before {
   content: "";
   position: absolute;
@@ -176,7 +163,7 @@
   background: linear-gradient(
     120deg,
     transparent,
-    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.6),
     transparent
   );
   transform: translateX(-120%);
@@ -187,16 +174,9 @@
   transform: translateX(120%);
 }
 
-/* hover */
 .register-card button:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 35px rgba(59, 130, 246, 0.6);
-}
-
-/* active */
-.register-card button:active {
-  transform: translateY(0);
-  box-shadow: 0 12px 22px rgba(59, 130, 246, 0.45);
 }
 
 /* ================= LINKS ================= */
