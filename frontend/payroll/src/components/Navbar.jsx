@@ -16,62 +16,88 @@ const Navbar = () => {
     location.pathname.includes("employee-dashboard") ||
     location.pathname.includes("admin-dashboard");
 
-  // hide navbar completely on certain pages if needed, but currently keeping it glassmorphic
+  // hide navbar completely on certain pages if needed
   const hideNavbar = false;
 
   if (hideNavbar) return null;
 
   return (
-    <nav style={{
-      ...styles.nav,
-      ...(isDashboard ? styles.dashboardNav : {})
-    }}>
-      <div style={styles.container}>
-        <div style={styles.logoContainer}>
-          {location.pathname !== "/" && (
-            <button onClick={() => navigate(-1)} style={styles.backBtn} title="Go Back">
-              ←
-            </button>
-          )}
-          <Link to="/" style={styles.logoLink}>
-            <img
-              src="https://flytowardsdigitalinnovation.com/wp-content/uploads/2025/07/cropped-DIGITAL_INNOVATION-removebg-preview-1-1-1.png"
-              alt="Fly Towards Digital Innovation"
-              style={styles.logoImage}
-            />
-            <div style={styles.logoText}>
-              <span style={{ color: "var(--primary)" }}>Fly</span>
-              <span style={{ color: "var(--text-main)" }}>Payroll</span>
-            </div>
-          </Link>
-        </div>
-
-        <div style={styles.links}>
-          <Link to="/" style={styles.link}>Home</Link>
-          {!user && (
-            <>
-              <Link to="/login?role=admin" style={{ ...styles.link, ...styles.adminBtn }}>
-                ADMIN
-              </Link>
-              <Link to="/login?role=employee" style={{ ...styles.link, ...styles.employeeBtn }}>
-                EMPLOYEE
-              </Link>
-            </>
-          )}
-          {user && (
-            <div style={styles.userInfo}>
-              <span style={styles.userRole}>{user.role?.toUpperCase()}</span>
-              <span style={styles.userName}>
-                {user.fullName || user.email?.split('@')[0]}
-              </span>
-              <button onClick={handleLogout} style={styles.logoutBtn}>
-                Logout
+    <>
+      <style>{`
+        @keyframes slideInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        .back-btn-animated {
+          animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .back-btn-animated:hover {
+          transform: scale(1.1) !important;
+          background: rgba(14, 116, 144, 0.1) !important;
+          color: var(--primary) !important;
+        }
+      `}</style>
+      <nav className="no-print" style={{
+        ...styles.nav,
+        ...(isDashboard ? styles.dashboardNav : {})
+      }}>
+        <div style={styles.container}>
+          <div style={styles.logoContainer}>
+            {location.pathname !== "/" && (
+              <button
+                onClick={() => navigate(-1)}
+                style={styles.backBtn}
+                className="back-btn-animated"
+                title="Go Back"
+              >
+                ←
               </button>
-            </div>
-          )}
+            )}
+            <Link to="/" style={styles.logoLink}>
+              <img
+                src="https://flytowardsdigitalinnovation.com/wp-content/uploads/2025/07/cropped-DIGITAL_INNOVATION-removebg-preview-1-1-1.png"
+                alt="Fly Towards Digital Innovation"
+                style={styles.logoImage}
+              />
+              <div style={styles.logoText}>
+                <span style={{ color: "var(--primary)" }}>Fly</span>
+                <span style={{ color: "var(--text-main)" }}>Payroll</span>
+              </div>
+            </Link>
+          </div>
+
+          <div style={styles.links}>
+            {!user && (
+              <>
+                <Link to="/login?role=admin" style={{ ...styles.link, ...styles.adminBtn }}>
+                  ADMIN
+                </Link>
+                <Link to="/login?role=employee" style={{ ...styles.link, ...styles.employeeBtn }}>
+                  EMPLOYEE
+                </Link>
+              </>
+            )}
+            {user && (
+              <div style={styles.userInfo}>
+                <span style={styles.userRole}>{user.role?.toUpperCase()}</span>
+                <span style={styles.userName}>
+                  {user.fullName || user.email?.split('@')[0]}
+                </span>
+                <button onClick={handleLogout} style={styles.logoutBtn}>
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 };
 
@@ -82,13 +108,12 @@ const styles = {
     left: 0,
     width: "100%",
     zIndex: 100,
-    transition: "all 0.3s ease",
-    background: "rgba(255, 255, 255, 0.1)",
-    backdropFilter: "blur(12px)",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
+    background: "transparent",
+    borderBottom: "none",
+    boxShadow: "none",
   },
   dashboardNav: {
-    background: "rgba(255, 255, 255, 0.6)",
+    background: "transparent",
   },
   container: {
     maxWidth: "1400px",
@@ -103,21 +128,21 @@ const styles = {
     alignItems: "center",
   },
   backBtn: {
-    background: "rgba(255, 255, 255, 0.2)",
-    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.15)",
+    border: "1px solid rgba(14, 165, 233, 0.2)",
     color: "var(--text-main)",
-    width: "35px",
-    height: "35px",
-    borderRadius: "50%",
+    width: "40px",
+    height: "40px",
+    borderRadius: "12px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
-    fontSize: "1.2rem",
-    marginRight: "15px",
-    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+    fontSize: "1.4rem",
+    marginRight: "20px",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     backdropFilter: "blur(4px)",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
   },
   logoLink: {
     display: 'flex',

@@ -36,10 +36,49 @@ const SalarySlip = ({ employee, payrollData, stats, onBack }) => {
             padding: '40px',
             boxShadow: 'var(--shadow-lg)',
             width: '100%',
-            maxWidth: '850px',
+            maxWidth: '800px',
             margin: '0 auto',
-            position: 'relative'
-        }} className="fade-in">
+            position: 'relative',
+            pageBreakInside: 'avoid',
+        }} className="fade-in salary-slip-container">
+            <style>{`
+                @media print {
+                    @page {
+                        size: A4;
+                        margin: 10mm;
+                    }
+                    body {
+                        background: white !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    .salary-slip-container {
+                        box-shadow: none !important;
+                        border: 1px solid #ddd !important;
+                        margin: 0 auto !important;
+                        padding: 10mm !important;
+                        width: 100% !important;
+                        max-width: none !important;
+                        min-height: auto !important;
+                        zoom: 0.95;
+                    }
+                    .no-print {
+                        display: none !important;
+                    }
+                }
+            `}</style>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
+                <img
+                    src="https://flytowardsdigitalinnovation.com/wp-content/uploads/2025/07/cropped-DIGITAL_INNOVATION-removebg-preview-1-1-1.png"
+                    alt="Company Logo"
+                    style={{ height: '60px', width: 'auto' }}
+                />
+                <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-1px' }}>
+                    <span style={{ color: 'var(--primary)' }}>Fly</span>
+                    <span style={{ color: 'var(--text-main)' }}>Payroll</span>
+                </h1>
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px', borderBottom: '2px solid var(--primary)', paddingBottom: '20px' }}>
                 <div>
                     <h2 style={{ margin: 0, color: 'var(--primary)', fontSize: '1.8rem' }}>Monthly Salary Slip</h2>
