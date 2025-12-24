@@ -266,6 +266,26 @@ app.post("/forgot-password", async (req, res) => {
   }
 });
 
+app.get("/api/employees/:employeeId", async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+
+    const employee = await Employee.findOne(
+      { employeeId },
+      { password: 0, __v: 0 }
+    );
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.json(employee);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch employee" });
+  }
+});
+
 /* ---------- SERVER ---------- */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>
