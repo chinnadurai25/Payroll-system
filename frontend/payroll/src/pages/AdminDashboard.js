@@ -49,21 +49,22 @@ const AdminDashboard = () => {
     };
 
     const handleEmployeeSelect = async (employee) => {
-    try {
-        const res = await fetch(
-            `http://localhost:5000/api/employees/${employee.employeeId}`
-        );
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/employees/${employee.employeeId}`
+    );
 
-        if (!res.ok) {
-            throw new Error("Failed to fetch employee");
-        }
-
-        const fullEmployee = await res.json();
-        setSelectedEmployee(fullEmployee);
-    } catch (err) {
-        console.error("Failed to fetch employee details", err);
+    if (!res.ok) {
+      throw new Error("Failed to fetch employee");
     }
+
+    const fullEmployee = await res.json();
+    setSelectedEmployee(fullEmployee);
+  } catch (err) {
+    console.error("Failed to fetch employee details", err);
+  }
 };
+
 
 
     const handlePayrollUpdate = (employeeId, payrollData) => {
