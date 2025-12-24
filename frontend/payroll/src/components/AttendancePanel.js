@@ -40,7 +40,8 @@ const AttendancePanel = ({ employee, onMarkAttendance, onMonthChange, initialSta
 
     const handlePrev = () => {
     const d = new Date(year, month - 1, 1);
-    setCurrentMonth(d);
+    setViewDate(d);
+
     onMonthChange?.(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
 };
 
