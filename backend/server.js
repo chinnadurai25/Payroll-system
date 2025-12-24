@@ -114,6 +114,46 @@ const createDefaultAdmin = async () => {
 };
 createDefaultAdmin();
 
+const payslipSchema = new mongoose.Schema(
+  {
+    employeeId: String,
+    month: String, // YYYY-MM
+
+    earnings: {
+      basicSalary: Number,
+      hra: Number,
+      splAllowance: Number,
+      travelAllowance: Number,
+      allowances: Number,
+      bonus: Number,
+      insteadDue: Number
+    },
+
+    deductions: {
+      taxPercent: Number,
+      taxAmount: Number,
+      pf: Number
+    },
+
+    attendance: {
+      totalDays: Number,
+      presentDays: Number
+    },
+
+    grossSalary: Number,
+    netSalary: Number
+  },
+  { timestamps: true }
+);
+
+// One payslip per employee per month
+payslipSchema.index({ employeeId: 1, month: 1 }, { unique: true });
+
+const Payslip =
+  mongoose.models.Payslip ||
+  mongoose.model("Payslip", payslipSchema, "payslip"); // <- force collection name
+
+
 /* =========================================================
    AUTH ROUTES
 ========================================================= */
@@ -175,12 +215,23 @@ app.get("/api/employees", async (req, res) => {
 });
 
 app.get("/api/employees/:employeeId", async (req, res) => {
-  const employee = await Employee.findOne(
-    { employeeId: req.params.employeeId },
-    { password: 0, __v: 0 }
-  );
-  if (!employee) return res.status(404).json({ message: "Employee not found" });
-  res.json(employee);
+  try {
+    const { employeeId } = req.params;
+
+    const employee = await Employee.findOne(
+      { employeeId },
+      { password: 0, __v: 0 }
+    );
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.json(employee);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch employee" });
+  }
 });
 
 /* =========================================================
@@ -208,6 +259,7 @@ app.post("/api/attendance", async (req, res) => {
         $set: {
           [`days.${date}`]: status
         }
+
       },
       { upsert: true, new: true }
     );
@@ -243,6 +295,30 @@ app.post("/forgot-password", async (req, res) => {
 
   res.json({ message: "Password updated" });
 });
+
+app.post("/api/payslip", async (req, res) => {
+  try {
+    console.log("📥 Payslip API HIT");
+    console.log(req.body);
+
+    const savedPayslip = await Payslip.findOneAndUpdate(
+      {
+        employeeId: req.body.employeeId,
+        month: req.body.month
+      },
+      { $set: req.body },
+      { upsert: true, new: true }
+    );
+
+    console.log("✅ Payslip saved/updated:", savedPayslip._id);
+
+    res.json({ message: "Payslip saved successfully" });
+  } catch (err) {
+    console.error("❌ Payslip save error:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 /* =========================================================
    SERVER
