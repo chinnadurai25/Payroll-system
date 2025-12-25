@@ -15,6 +15,7 @@ const BackgroundSlider = () => {
             setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
         }, 5000); // Change image every 5 seconds
 
+        
         return () => clearInterval(interval);
     }, [images.length]);
 

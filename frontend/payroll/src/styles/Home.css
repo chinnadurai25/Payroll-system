@@ -23,13 +23,6 @@ body {
    HERO SECTION
 ====================================================== */
 .hero {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  height: 80vh;
-  background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
-=======
-=======
->>>>>>> add94e63eb1772c872b1a0388c89dda7a59bbc61
   position: relative;
   background: linear-gradient(135deg, #4fd1ff, #5bbcff);
   padding: 100px 10% 150px;
@@ -50,10 +43,6 @@ body {
 }
 
 .hero-wrapper {
-<<<<<<< HEAD
->>>>>>> 49c83d320a8f36a456d2c9f3e5510e8f2d6d0391
-=======
->>>>>>> add94e63eb1772c872b1a0388c89dda7a59bbc61
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -81,34 +70,15 @@ body {
 
 /* ---------- Button (Premium Hover) ---------- */
 .primary-btn {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  padding: 12px 28px;
-  background-color: white;
-  color: #0ea5e9;
-=======
-=======
->>>>>>> add94e63eb1772c872b1a0388c89dda7a59bbc61
   position: relative;
   background: linear-gradient(135deg, #1e40af, #2563eb);
   color: white;
   padding: 14px 38px;
-<<<<<<< HEAD
->>>>>>> 49c83d320a8f36a456d2c9f3e5510e8f2d6d0391
-=======
->>>>>>> add94e63eb1772c872b1a0388c89dda7a59bbc61
   border: none;
   border-radius: 999px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-<<<<<<< HEAD
-<<<<<<< HEAD
-  transition: 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-=======
-=======
->>>>>>> add94e63eb1772c872b1a0388c89dda7a59bbc61
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -129,10 +99,6 @@ body {
 
 .primary-btn:hover::before {
   left: 120%;
-<<<<<<< HEAD
->>>>>>> 49c83d320a8f36a456d2c9f3e5510e8f2d6d0391
-=======
->>>>>>> add94e63eb1772c872b1a0388c89dda7a59bbc61
 }
 
 .primary-btn:hover {
@@ -272,25 +238,9 @@ body {
    FOOTER (Merged – No White Shock)
 ====================================================== */
 .footer {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  background-color: #0c4a6e;
-  color: white;
-  padding: 20px;
-  text-align: center;
-  margin-top: 40px;
-}
-=======
-  background: linear-gradient(
-    180deg,
-    #eaf3ff 0%,
-    #0f172a 65%
-  );
-=======
   background: linear-gradient(180deg,
       #eaf3ff 0%,
       #0f172a 65%);
->>>>>>> add94e63eb1772c872b1a0388c89dda7a59bbc61
   padding: 28px 20px;
   text-align: center;
   color: #e5e7eb;
@@ -330,9 +280,4 @@ body {
   .features {
     gap: 28px;
   }
-<<<<<<< HEAD
 }
->>>>>>> 49c83d320a8f36a456d2c9f3e5510e8f2d6d0391
-=======
-}
->>>>>>> add94e63eb1772c872b1a0388c89dda7a59bbc61
