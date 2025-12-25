@@ -6,6 +6,7 @@ import {
   useLocation
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import Messages from "./pages/Messages";
 
 import Navbar from "./components/Navbar";
 import BackgroundSlider from "./components/BackgroundSlider";
@@ -92,6 +93,17 @@ const AppLayout = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/messages"
+  element={
+    <ProtectedRoute>
+      <Messages />
+    </ProtectedRoute>
+  }
+/>
+
+
+
       </Routes>
     </>
   );

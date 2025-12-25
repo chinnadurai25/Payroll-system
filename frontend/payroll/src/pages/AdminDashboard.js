@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Button from '../components/Button';
 import EmployeeList from '../components/EmployeeList';
 import PayrollForm from '../components/PayrollForm';
 import AttendancePanel from '../components/AttendancePanel';
@@ -19,6 +21,22 @@ const AdminDashboard = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const viewMode = searchParams.get('v') || 'config'; // 'config' or 'slip'
     const [pendingPayrollData, setPendingPayrollData] = useState(null);
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    // If user uses browser navigation (back/forward), force logout for safety
+    useEffect(() => {
+        const handlePop = () => {
+            try {
+                logout();
+            } finally {
+                navigate('/login');
+            }
+        };
+
+        window.addEventListener('popstate', handlePop);
+        return () => window.removeEventListener('popstate', handlePop);
+    }, [logout, navigate]);
 
     useEffect(() => {
         const fetchEmployees = async () => {
@@ -191,6 +209,10 @@ const handlePayrollUpdate = async (employeeId, payrollData) => {
                     <div>
                         <h1 className="title-gradient" style={{ fontSize: '2.5rem', marginBottom: '5px' }}>Admin Dashboard</h1>
                         <p style={{ color: 'var(--text-muted)', fontWeight: '500' }}>Strategic Payroll & Workforce Intelligence</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <Button onClick={() => navigate('/messages')} variant="primary" style={{ padding: '12px 24px' }}>Messages</Button>
+                        <Button className="logout-btn" variant="secondary" onClick={() => { logout(); navigate('/login'); }} style={{ padding: '10px 18px' }}>Logout</Button>
                     </div>
                 </div>
 

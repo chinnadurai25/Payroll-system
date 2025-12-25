@@ -76,21 +76,20 @@ const Admin =
   mongoose.models.Admin || mongoose.model("Admin", adminSchema);
 
 /* =========================================================
-   ATTENDANCE MODEL (MONTHLY + DAYS MAP)
+   ATTENDANCE MODEL
 ========================================================= */
 const attendanceSchema = new mongoose.Schema(
   {
     employeeId: { type: String, required: true },
-    month: { type: String, required: true }, // YYYY-MM
+    month: { type: String, required: true },
     days: {
       type: Map,
-      of: String // P / A / L
+      of: String
     }
   },
   { timestamps: true }
 );
 
-// ONE document per employee per month
 attendanceSchema.index({ employeeId: 1, month: 1 }, { unique: true });
 
 const Attendance =
@@ -114,10 +113,13 @@ const createDefaultAdmin = async () => {
 };
 createDefaultAdmin();
 
+/* =========================================================
+   PAYSLIP MODEL
+========================================================= */
 const payslipSchema = new mongoose.Schema(
   {
     employeeId: String,
-    month: String, // YYYY-MM
+    month: String,
 
     earnings: {
       basicSalary: Number,
@@ -146,13 +148,36 @@ const payslipSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// One payslip per employee per month
 payslipSchema.index({ employeeId: 1, month: 1 }, { unique: true });
 
 const Payslip =
   mongoose.models.Payslip ||
-  mongoose.model("Payslip", payslipSchema, "payslip"); // <- force collection name
+  mongoose.model("Payslip", payslipSchema, "payslip");
 
+/* =========================================================
+   🔹 MESSAGE MODEL (NEW – ADDED ONLY)
+========================================================= */
+const messageSchema = new mongoose.Schema(
+  {
+    fromRole: { type: String, enum: ["admin", "employee"], required: true },
+    fromId: { type: String, required: true },
+    fromName: { type: String, required: true },
+
+    toRole: { type: String, enum: ["admin", "employee"], required: true },
+    toId: { type: String, required: true },
+
+    title: { type: String, required: true },
+    message: { type: String, required: true },
+    category: { type: String, enum: ["error", "query", "feedback", "other"], default: "query" },
+    isRead: { type: Boolean, default: false },
+    status: { type: String, enum: ["open", "solved", "closed"], default: "open" },
+    response: { type: String, default: null }
+  },
+  { timestamps: true }
+);
+
+const Message =
+  mongoose.models.Message || mongoose.model("Message", messageSchema);
 
 /* =========================================================
    AUTH ROUTES
@@ -180,7 +205,7 @@ app.post("/register", async (req, res) => {
 
     await employee.save();
     res.status(201).json({ message: "Registration successful" });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -215,23 +240,15 @@ app.get("/api/employees", async (req, res) => {
 });
 
 app.get("/api/employees/:employeeId", async (req, res) => {
-  try {
-    const { employeeId } = req.params;
+  const employee = await Employee.findOne(
+    { employeeId: req.params.employeeId },
+    { password: 0, __v: 0 }
+  );
 
-    const employee = await Employee.findOne(
-      { employeeId },
-      { password: 0, __v: 0 }
-    );
+  if (!employee)
+    return res.status(404).json({ message: "Employee not found" });
 
-    if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-
-    res.json(employee);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch employee" });
-  }
+  res.json(employee);
 });
 
 /* =========================================================
@@ -246,36 +263,89 @@ app.put("/api/employees/:employeeId/payroll", async (req, res) => {
 });
 
 /* =========================================================
-   ATTENDANCE (FIXED LOGIC ✅)
+   ATTENDANCE
 ========================================================= */
 app.post("/api/attendance", async (req, res) => {
-  try {
-    const { employeeId, date, status } = req.body;
-    const month = date.slice(0, 7); // YYYY-MM
+  const { employeeId, date, status } = req.body;
+  const month = date.slice(0, 7);
 
-    await Attendance.findOneAndUpdate(
-      { employeeId, month },
-      {
-        $set: {
-          [`days.${date}`]: status
-        }
+  await Attendance.findOneAndUpdate(
+    { employeeId, month },
+    { $set: { [`days.${date}`]: status } },
+    { upsert: true, new: true }
+  );
 
-      },
-      { upsert: true, new: true }
-    );
-
-    res.json({ message: "Attendance saved successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Attendance save failed" });
-  }
+  res.json({ message: "Attendance saved successfully" });
 });
 
 app.get("/api/attendance", async (req, res) => {
   const { employeeId, month } = req.query;
-
   const record = await Attendance.findOne({ employeeId, month });
   res.json(record?.days || {});
+});
+
+/* =========================================================
+   🔹 MESSAGE ROUTES (NEW – ADDED ONLY)
+========================================================= */
+
+// Send message
+app.post("/api/messages", async (req, res) => {
+  const msg = await Message.create(req.body);
+  res.json(msg);
+});
+
+// Get messages for logged-in user
+app.get("/api/messages", async (req, res) => {
+  const { role, id } = req.query;
+
+  let query;
+  
+  if (role === "admin") {
+    // Admins see all messages sent to them (toRole: 'admin')
+    query = {
+      toRole: "admin"
+    };
+  } else {
+    // Employees see messages they sent and responses they received
+    query = {
+      $or: [
+        { fromRole: role, fromId: id },
+        { toRole: role, toId: id }
+      ]
+    };
+  }
+
+  const messages = await Message.find(query).sort({ createdAt: -1 });
+  res.json(messages);
+});
+
+// Mark messages as read
+app.put("/api/messages/read/:id", async (req, res) => {
+  await Message.findByIdAndUpdate(req.params.id, { isRead: true });
+  res.json({ message: "Marked as read" });
+});
+
+// Update message status and add response
+app.put("/api/messages/:id", async (req, res) => {
+  try {
+    const { status, response } = req.body;
+    const updateData = { status };
+    if (response) updateData.response = response;
+    const updated = await Message.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a message
+app.delete("/api/messages/:id", async (req, res) => {
+  try {
+    await Message.findByIdAndDelete(req.params.id);
+    res.json({ message: "Message deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 /* =========================================================
@@ -297,28 +367,14 @@ app.post("/forgot-password", async (req, res) => {
 });
 
 app.post("/api/payslip", async (req, res) => {
-  try {
-    console.log("📥 Payslip API HIT");
-    console.log(req.body);
+  await Payslip.findOneAndUpdate(
+    { employeeId: req.body.employeeId, month: req.body.month },
+    { $set: req.body },
+    { upsert: true, new: true }
+  );
 
-    const savedPayslip = await Payslip.findOneAndUpdate(
-      {
-        employeeId: req.body.employeeId,
-        month: req.body.month
-      },
-      { $set: req.body },
-      { upsert: true, new: true }
-    );
-
-    console.log("✅ Payslip saved/updated:", savedPayslip._id);
-
-    res.json({ message: "Payslip saved successfully" });
-  } catch (err) {
-    console.error("❌ Payslip save error:", err);
-    res.status(500).json({ message: err.message });
-  }
+  res.json({ message: "Payslip saved successfully" });
 });
-
 
 /* =========================================================
    SERVER
