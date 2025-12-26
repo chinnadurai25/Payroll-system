@@ -4,6 +4,11 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import SalarySlip from '../components/SalarySlip';
+
+import '../styles/EmployeeDashboard.css';
+
+
+
 import '../styles/EmployeeDashboard.css';
 import '../styles/Button.css';
 

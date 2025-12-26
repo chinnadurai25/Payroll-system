@@ -112,3 +112,25 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 15px -3px rgba(220, 38, 38, 0.4) !important;
 }
+button, .btn, .btn-modern {
+  position: relative;
+  overflow: hidden;
+}
+
+button::after, .btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(56,189,248,0.45),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+button:hover::after,
+.btn:hover::after {
+  opacity: 0.4;
+}
