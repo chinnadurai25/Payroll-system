@@ -1,0 +1,114 @@
+/* ================= ROOT ================= */
+:root {
+  --sky-main: #38bdf8;
+  --sky-soft: #bae6fd;
+  --white-main: #ffffff;
+
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.35);
+
+  --text-dark: #0f172a;
+  --text-muted: #64748b;
+
+  --radius-lg: 22px;
+  --radius-md: 16px;
+
+  --shadow-soft: 0 18px 40px rgba(2, 132, 199, 0.2);
+  --shadow-glow: 0 0 30px rgba(56,189,248,0.45);
+
+  --blur: blur(20px);
+}
+
+/* ================= PAGE ================= */
+.employee-page {
+  min-height: 100vh;
+  padding: 40px 24px;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(186,230,253,0.55), transparent 45%),
+    radial-gradient(circle at 85% 20%, rgba(56,189,248,0.35), transparent 45%),
+    linear-gradient(180deg, #ffffff, #f0f9ff);
+}
+
+/* ================= MAIN CARD ================= */
+.employee-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  padding: 36px;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.employee-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-soft), var(--shadow-glow);
+}
+
+/* ================= HEADERS ================= */
+.title-gradient {
+  font-weight: 900;
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ================= INSIGHT CARDS ================= */
+.fly-card,
+.glass-panel {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  border: 1px solid #e0f2fe;
+  box-shadow: 0 12px 30px rgba(2,132,199,0.15);
+  transition: all 0.35s ease;
+}
+
+.fly-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-soft), var(--shadow-glow);
+}
+
+/* ================= SALARY HERO ================= */
+.salary-highlight {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 34px;
+  box-shadow: var(--shadow-soft), var(--shadow-glow);
+}
+
+/* ================= ATTENDANCE BAR ================= */
+.attendance-bar div {
+  transition: transform 0.25s ease;
+}
+
+.attendance-bar div:hover {
+  transform: scaleY(1.3);
+}
+
+/* ================= BUTTON ================= */
+button {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: white;
+  border: none;
+  padding: 12px 26px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  box-shadow: 0 0 25px rgba(56,189,248,0.6);
+  transform: translateY(-2px);
+}
+
+/* ================= FADE ================= */
+.fade-in {
+  animation: fadeUp 0.6s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}

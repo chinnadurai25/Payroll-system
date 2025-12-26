@@ -169,8 +169,9 @@ const handlePayrollUpdate = async (employeeId, payrollData) => {
 
     if (loading) {
         return (
-            <div style={{ padding: '40px 20px' }} className="fade-in">
-                <div className="container">
+            < div className="admin-page fade-in">
+                <div className="container admin-container">
+
                     <h2>Loading...</h2>
                 </div>
             </div>
@@ -178,8 +179,9 @@ const handlePayrollUpdate = async (employeeId, payrollData) => {
     }
 
     return (
-        <div style={{ padding: '40px 20px' }} className="fade-in">
-            <div className="container">
+        <div className="admin-page fade-in">
+            <div className="container admin-container">
+
                 <div className="no-print" style={{
                     display: 'flex',
                     justifyContent: 'space-between',

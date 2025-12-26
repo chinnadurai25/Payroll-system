@@ -1,50 +1,154 @@
+/* ================= ROOT THEME ================= */
+:root {
+  --sky-main: #38bdf8;
+  --sky-soft: #7dd3fc;
+  --sky-glow: rgba(56, 189, 248, 0.55);
+
+  --white-main: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.18);
+  --glass-border: rgba(255, 255, 255, 0.35);
+
+  --text-dark: #0f172a;
+  --text-muted: #64748b;
+
+  --radius-lg: 22px;
+  --radius-md: 16px;
+
+  --shadow-soft: 0 20px 45px rgba(2, 132, 199, 0.25);
+  --shadow-glow: 0 0 35px var(--sky-glow);
+
+  --blur-strong: blur(22px);
+}
+
+/* ================= PAGE BACKGROUND ================= */
+.admin-page {
+  min-height: 100vh;
+  padding: 40px 24px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(125, 211, 252, 0.45), transparent 45%),
+    radial-gradient(circle at 80% 10%, rgba(56, 189, 248, 0.35), transparent 50%),
+    linear-gradient(180deg, #f8fbff, #eef6ff);
+  animation: bgFloat 18s ease-in-out infinite;
+}
+
+@keyframes bgFloat {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 40%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ================= TITLE ================= */
+.title-gradient {
+  font-weight: 900;
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: titleFade 0.8s ease;
+}
+
+@keyframes titleFade {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= DASHBOARD GRID ================= */
 .admin-dashboard-container {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 30px;
-    height: 70vh;
-    /* Fixed height for scrollable areas */
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 30px;
+  height: 75vh;
 }
 
-@media (max-width: 900px) {
-    .admin-dashboard-container {
-        grid-template-columns: 1fr;
-        height: auto;
-    }
+/* ================= GLASS CARDS ================= */
+.fly-card,
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-strong);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s ease;
 }
 
+/* Light refraction sweep */
+.fly-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.6),
+    transparent
+  );
+  transform: translateX(-120%);
+  transition: transform 0.8s ease;
+}
+
+.fly-card:hover::before {
+  transform: translateX(120%);
+}
+
+.fly-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: var(--shadow-soft), var(--shadow-glow);
+}
+
+/* ================= QUICK STATS ================= */
+.fly-card div {
+  color: var(--text-dark);
+}
+
+/* ================= RIGHT PANEL ================= */
 .details-panel {
-    overflow-y: auto;
-    padding-right: 10px;
+  overflow-y: auto;
+  padding-right: 12px;
 }
 
-/* Scrollbar styling */
 .details-panel::-webkit-scrollbar {
-    width: 8px;
-}
-
-.details-panel::-webkit-scrollbar-track {
-    background: #f1f1f1;
+  width: 8px;
 }
 
 .details-panel::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
+  background: linear-gradient(#38bdf8, #0ea5e9);
+  border-radius: 10px;
 }
 
-.details-panel::-webkit-scrollbar-thumb:hover {
-    background: #999;
+/* ================= GLOW BUTTON ================= */
+button,
+.run-payroll-btn {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 0 rgba(56,189,248,0.0);
+  transition: all 0.35s ease;
 }
 
-@media print {
-    .admin-dashboard-container {
-        display: block !important;
-        height: auto !important;
-    }
+button:hover {
+  box-shadow: 0 0 30px rgba(56,189,248,0.7);
+  transform: translateY(-2px);
+}
 
-    .details-panel {
-        overflow: visible !important;
-        height: auto !important;
-        padding: 0 !important;
-    }
+/* ================= FADE ================= */
+.fade-in {
+  animation: fadeUp 0.7s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 900px) {
+  .admin-dashboard-container {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
 }

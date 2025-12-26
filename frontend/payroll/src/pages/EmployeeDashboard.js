@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import SalarySlip from '../components/SalarySlip';
+import '../styles/EmployeeDashboard.css';
 
 const EmployeeDashboard = () => {
     const { user } = useAuth();
@@ -118,7 +119,7 @@ const EmployeeDashboard = () => {
     const monthLabel = viewDate.toLocaleString(undefined, { month: 'long', year: 'numeric' });
 
     return (
-        <div style={{ padding: '40px 20px' }} className="fade-in">
+        <div className="employee-card">
             <div className="container">
                 <div className="no-print" style={{
                     display: 'flex',
