@@ -12,6 +12,7 @@ const EmployeeDashboard = () => {
     // State
     const [employeeData, setEmployeeData] = useState(null);
     const [attendance, setAttendance] = useState({});
+    const [payslipData, setPayslipData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [viewDate, setViewDate] = useState(() => {
         const d = new Date();
@@ -65,11 +66,23 @@ const EmployeeDashboard = () => {
             } catch (err) {
                 console.warn('Error fetching attendance:', err);
                 setAttendance({});
-            } finally {
-                setLoading(false);
             }
         };
+
+        const fetchPayslip = async () => {
+            try {
+                const res = await fetch(`http://localhost:5000/api/payslip?employeeId=${encodeURIComponent(employeeData.employeeId)}&month=${viewingMonth}`);
+                if (!res.ok) throw new Error('Failed to fetch payslip');
+                const data = await res.json();
+                setPayslipData(data);
+            } catch (err) {
+                console.warn('Error fetching payslip:', err);
+                setPayslipData(null);
+            }
+        };
+
         fetchAttendance();
+        fetchPayslip();
     }, [employeeData, viewingMonth]);
 
     // Calculations
@@ -82,9 +95,13 @@ const EmployeeDashboard = () => {
     }, [attendance, year, month]);
 
     const payrollResults = useMemo(() => {
-        if (!employeeData?.payroll) return { netPayable: 0, gross: 0, tax: 0, proRated: 0, deductions: 0, breakdown: {} };
+        const payroll = payslipData?.earnings || employeeData?.payroll;
+        if (!payroll) return { netPayable: 0, gross: 0, tax: 0, proRated: 0, deductions: 0, breakdown: {} };
 
-        const { basicSalary, hra, splAllowance, travelAllowance, allowances, bonus, insteadDue, pf, tax } = employeeData.payroll;
+        const { basicSalary, hra, splAllowance, travelAllowance, allowances, bonus, insteadDue } = payroll;
+        const pf = payslipData?.deductions?.pf || employeeData?.payroll?.pf || 0;
+        const taxRate = payslipData?.deductions?.taxPercent || employeeData?.payroll?.tax || 0;
+
         const basic = parseFloat(basicSalary) || 0;
         const h = parseFloat(hra) || 0;
         const spl = parseFloat(splAllowance) || 0;
@@ -93,7 +110,7 @@ const EmployeeDashboard = () => {
         const bns = parseFloat(bonus) || 0;
         const inst = parseFloat(insteadDue) || 0;
         const pfVal = parseFloat(pf) || 0;
-        const tRate = parseFloat(tax) || 0;
+        const tRate = parseFloat(taxRate) || 0;
 
         const gross = basic + h + spl + travel + allow + bns + inst;
         const proRated = stats.totalDays > 0 ? (gross / stats.totalDays) * stats.present : 0;
@@ -110,7 +127,7 @@ const EmployeeDashboard = () => {
             taxRate: tRate,
             breakdown: { basic, h, spl, travel, allow, bns, inst }
         };
-    }, [employeeData, stats]);
+    }, [employeeData, payslipData, stats]);
 
     const handlePrev = () => setViewDate(new Date(year, month - 1, 1));
     const handleNext = () => setViewDate(new Date(year, month + 1, 1));
@@ -222,7 +239,7 @@ const EmployeeDashboard = () => {
                     <div style={{ marginTop: '30px' }}>
                         <SalarySlip
                             employee={employeeData}
-                            payrollData={employeeData?.payroll}
+                            payrollData={payslipData?.earnings ? { ...payslipData.earnings, tax: payslipData.deductions?.taxPercent, pf: payslipData.deductions?.pf } : employeeData?.payroll}
                             stats={stats}
                             onBack={() => setSearchParams({ v: 'overview' })}
                         />
