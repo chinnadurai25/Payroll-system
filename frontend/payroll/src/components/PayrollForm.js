@@ -21,7 +21,7 @@ const PayrollForm = ({ employee, onUpdate, stats, initialData }) => {
             setFormData({
                 basicSalary: payroll.basicSalary || '',
                 hra: payroll.hra || '',
-                splAllowance: payroll.specialAllowance || '',
+                splAllowance: payroll.splAllowance || '',
                 travelAllowance: payroll.travelAllowance || '',
                 allowances: payroll.allowances || '',
                 bonus: payroll.bonus || '',

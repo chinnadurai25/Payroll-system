@@ -84,7 +84,7 @@ const AdminDashboard = () => {
         const gross =
             (+payrollData.basicSalary || 0) +
             (+payrollData.hra || 0) +
-            (+payrollData.specialAllowance || 0) +
+            (+payrollData.splAllowance || 0) +
             (+payrollData.travelAllowance || 0) +
             (+payrollData.allowances || 0) +
             (+payrollData.bonus || 0) +
@@ -102,7 +102,7 @@ const AdminDashboard = () => {
             earnings: {
                 basicSalary: payrollData.basicSalary,
                 hra: payrollData.hra,
-                specialAllowance: payrollData.specialAllowance,
+                splAllowance: payrollData.splAllowance,
                 travelAllowance: payrollData.travelAllowance,
                 allowances: payrollData.allowances,
                 bonus: payrollData.bonus,

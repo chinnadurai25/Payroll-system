@@ -27,6 +27,8 @@ const employeeSchema = new mongoose.Schema(
     phone: String,
     address: String,
     taxStatus: String,
+    panNumber: String,
+    aadharNumber: String,
 
     accountName: String,
     accountNumber: String,
@@ -45,14 +47,21 @@ const employeeSchema = new mongoose.Schema(
     consent: Boolean,
 
     payroll: {
+      basicSalary: { type: Number, default: 0 },
       basicPay: { type: Number, default: 0 },
       hra: { type: Number, default: 0 },
+      splAllowance: { type: Number, default: 0 },
+      travelAllowance: { type: Number, default: 0 },
       allowances: { type: Number, default: 0 },
+      bonus: { type: Number, default: 0 },
+      insteadDue: { type: Number, default: 0 },
+      pf: { type: Number, default: 0 },
       tax: { type: Number, default: 0 }
     },
 
     email: { type: String, unique: true },
-    password: String
+    password: String,
+    profilePhoto: { type: String, default: null }
   },
   { timestamps: true }
 );
@@ -188,11 +197,39 @@ app.post("/register", async (req, res) => {
       return res.status(403).json({ message: "Admin registration not allowed" });
     }
 
-    const exists = await Employee.findOne({ email: req.body.email });
-    if (exists) return res.status(400).json({ message: "User already exists" });
+    console.log(`📝 Registration attempt with email: ${req.body.email}`);
 
-    const count = await Employee.countDocuments();
-    const employeeId = `Fly_emp${count + 1}`;
+    const exists = await Employee.findOne({ email: req.body.email });
+    if (exists) {
+      console.log(`❌ Email already exists: ${req.body.email}`);
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // Generate unique employee ID - Check with existing ones
+    let employeeId;
+    let idExists = true;
+    let counter = 1;
+    const maxAttempts = 10000; // Safety limit
+    
+    while (idExists && counter <= maxAttempts) {
+      employeeId = `Fly_emp${counter}`;
+      
+      // Check if this ID already exists in database
+      const idCheck = await Employee.findOne({ employeeId: employeeId });
+      
+      if (!idCheck) {
+        // ID is unique, use it
+        idExists = false;
+        console.log(`✅ Generated unique Employee ID: ${employeeId}`);
+      } else {
+        // ID exists, try next one
+        counter++;
+      }
+    }
+
+    if (counter > maxAttempts) {
+      return res.status(500).json({ message: "Unable to generate unique employee ID" });
+    }
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -203,32 +240,70 @@ app.post("/register", async (req, res) => {
       role: "employee"
     });
 
-    await employee.save();
-    res.status(201).json({ message: "Registration successful" });
-  } catch {
-    res.status(500).json({ message: "Server error" });
+    const saved = await employee.save();
+    console.log(`✅ Employee registered successfully with email: ${saved.email} and ID: ${saved.employeeId}`);
+    
+    const { password, __v, ...employeeSafe } = saved.toObject();
+    res.status(201).json({ message: "Registration successful", employee: employeeSafe });
+  } catch (err) {
+    console.error('Register error:', err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
 app.post("/login", async (req, res) => {
   const { email, password, role } = req.body;
 
-  const user =
-    role === "admin"
-      ? await Admin.findOne({ email })
-      : await Employee.findOne({ email });
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
 
-  if (!user) return res.status(404).json({ message: "User not found" });
+  try {
+    console.log(`\n🔐 LOGIN ATTEMPT`);
+    console.log(`📧 Email received: "${email}" (length: ${email.length})`);
+    console.log(`👤 Role: ${role}`);
+    
+    // First, let's check what emails exist in DB
+    const allEmployees = await Employee.find({}, { email: 1 });
+    console.log(`\n📊 All registered employee emails in DB:`);
+    allEmployees.forEach((emp, idx) => {
+      console.log(`   ${idx + 1}. "${emp.email}" (length: ${emp.email.length})`);
+    });
+    
+    // Try exact match first
+    console.log(`\n🔍 Trying exact match...`);
+    let user = await Employee.findOne({ email: email });
+    
+    // If not found, try case-insensitive
+    if (!user) {
+      console.log(`⚠️ Exact match failed, trying case-insensitive...`);
+      user = await Employee.findOne({ email: { $regex: `^${email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: "i" } });
+    }
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(401).json({ message: "Invalid password" });
+    if (!user) {
+      console.log(`❌ User not found with email: ${email}`);
+      return res.status(404).json({ message: "User not found. Please check your email and try again." });
+    }
 
-  res.json({
-    role: user.role || role,
-    email: user.email,
-    fullName: user.fullName,
-    employeeId: user.employeeId
-  });
+    console.log(`✅ User found: ${user.email}`);
+    
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      console.log(`❌ Invalid password for email: ${email}`);
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    console.log(`✅ Login successful for email: ${email}\n`);
+    res.json({
+      role: user.role || role,
+      email: user.email,
+      fullName: user.fullName,
+      employeeId: user.employeeId
+    });
+  } catch (err) {
+    console.error('❌ Login error:', err);
+    res.status(500).json({ message: "Server error during login", error: err.message });
+  }
 });
 
 /* =========================================================
@@ -237,6 +312,16 @@ app.post("/login", async (req, res) => {
 app.get("/api/employees", async (req, res) => {
   const employees = await Employee.find({}, { password: 0, __v: 0 });
   res.json(employees);
+});
+
+/* DEBUG: Get all employee emails for testing */
+app.get("/api/debug/employee-emails", async (req, res) => {
+  try {
+    const employees = await Employee.find({}, { email: 1, fullName: 1, employeeId: 1 });
+    res.json(employees);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching employee emails", error: err.message });
+  }
 });
 
 app.get("/api/employees/:employeeId", async (req, res) => {
@@ -249,6 +334,37 @@ app.get("/api/employees/:employeeId", async (req, res) => {
     return res.status(404).json({ message: "Employee not found" });
 
   res.json(employee);
+});
+
+app.put("/api/employees/:employeeId", async (req, res) => {
+  try {
+    const employee = await Employee.findOne({ employeeId: req.params.employeeId });
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // Update allowed fields (exclude sensitive fields like password and employeeId)
+    const allowedFields = [
+      "fullName", "dob", "personalEmail", "phone", "address", "taxStatus",
+      "panNumber", "aadharNumber",
+      "accountName", "accountNumber", "accountType", "bankCode", "jobTitle", "department",
+      "joiningDate", "workLocation", "emergencyName", "emergencyRel", "emergencyPhone",
+      "profilePhoto"
+    ];
+
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        employee[field] = req.body[field];
+      }
+    });
+
+    await employee.save();
+    const updated = await Employee.findOne({ employeeId: req.params.employeeId }, { password: 0, __v: 0 });
+    res.json(updated);
+  } catch (err) {
+    console.error("Error updating employee:", err);
+    res.status(500).json({ message: "Error updating employee", error: err.message });
+  }
 });
 
 /* =========================================================
@@ -329,7 +445,9 @@ app.put("/api/messages/read/:id", async (req, res) => {
 app.put("/api/messages/:id", async (req, res) => {
   try {
     const { status, response } = req.body;
-    const updateData = { status };
+    // mark as read when admin responds or status changes
+    const updateData = { isRead: true };
+    if (status) updateData.status = status;
     if (response) updateData.response = response;
     const updated = await Message.findByIdAndUpdate(req.params.id, updateData, { new: true });
     res.json(updated);

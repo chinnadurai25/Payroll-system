@@ -44,9 +44,10 @@ const AppLayout = () => {
 
   // ❌ Hide navbar on employee/admin pages
   const hideNavbarRoutes = [
-    "/employee-dashboard",
-    "/employee-profile",
-    "/admin-dashboard"
+    "/dashboard",
+    "/profile",
+    "/admin-dashboard",
+    "/messages"
   ];
 
   const hideNavbar = hideNavbarRoutes.includes(location.pathname);
@@ -77,7 +78,7 @@ const AppLayout = () => {
 
         {/* 🔐 Employee */}
         <Route
-          path="/employee-dashboard"
+          path="/dashboard"
           element={
             <ProtectedRoute allowedRole="employee">
               <EmployeeDashboard />
@@ -86,21 +87,22 @@ const AppLayout = () => {
         />
 
         <Route
-          path="/employee-profile"
+          path="/profile"
           element={
             <ProtectedRoute allowedRole="employee">
               <EmployeeProfile />
             </ProtectedRoute>
           }
         />
+
         <Route
-  path="/messages"
-  element={
-    <ProtectedRoute>
-      <Messages />
-    </ProtectedRoute>
-  }
-/>
+          path="/messages"
+          element={
+            <ProtectedRoute>
+              <Messages />
+            </ProtectedRoute>
+          }
+        />
 
 
 

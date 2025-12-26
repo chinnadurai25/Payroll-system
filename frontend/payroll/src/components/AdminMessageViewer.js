@@ -135,7 +135,7 @@ const AdminMessageViewer = ({ messages, onStatusChange, onDelete, loading }) => 
                             </div>
 
                             {expandedId === msg._id && (
-                                <div className="fade-in" style={{ marginTop: '25px', borderTop: '1px solid var(--border-color)', paddingTop: '25px' }}>
+                                <div className="fade-in" style={{ marginTop: '25px', borderTop: '1px solid var(--border-color)', paddingTop: '25px' }} onClick={(e) => e.stopPropagation()}>
                                     <h4 style={{ fontSize: '0.9rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '10px' }}>Message Content</h4>
                                     <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', marginBottom: '25px', lineHeight: '1.7', color: '#334155' }}>
                                         {msg.message}
