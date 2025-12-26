@@ -185,6 +185,39 @@ const AdminDashboard = () => {
         fetchAttendance();
     }, [selectedEmployee, viewingMonth]);
 
+    const handleDeleteEmployee = async (employee) => {
+  const confirmDelete = window.confirm(
+    `Are you sure you want to delete ${employee.fullName}? This action cannot be undone.`
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/employees/${employee.employeeId}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    if (!res.ok) throw new Error("Delete failed");
+
+    // Remove employee from UI list
+    setEmployees(prev =>
+      prev.filter(emp => emp.employeeId !== employee.employeeId)
+    );
+
+    // Clear selected employee
+    setSelectedEmployee(null);
+
+    alert("Employee deleted successfully");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete employee");
+  }
+};
+
+
     if (loading) {
         return (
             <div style={{ padding: '40px 20px' }} className="fade-in">
@@ -248,9 +281,19 @@ const AdminDashboard = () => {
                             selectedEmployeeId={selectedEmployee?.employeeId}
                         />
                     </div>
+                    
 
                     {/* Right Panel: Details & Actions */}
                     <div className="details-panel">
+                        <div className="no-print" style={{ marginBottom: "15px", textAlign: "right" }}>
+  <Button
+    variant="danger"
+    onClick={() => handleDeleteEmployee(selectedEmployee)}
+  >
+    Delete Employee
+  </Button>
+</div>
+
                         {selectedEmployee ? (
                             <>
                                 {viewMode === 'slip' ? (
