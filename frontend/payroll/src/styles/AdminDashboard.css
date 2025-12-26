@@ -30,24 +30,31 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 20%, rgba(56,189,248,0.06), transparent 55%),
-    radial-gradient(circle at 80% 80%, rgba(14,165,233,0.08), transparent 60%);
+    radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.06), transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.08), transparent 60%);
   animation: skyDrift 22s ease-in-out infinite;
   pointer-events: none;
   z-index: -1;
 }
 
 @keyframes skyDrift {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
 }
 
 /* ================= PAGE ================= */
 .admin-page {
   min-height: 100vh;
   padding: 40px 20px;
-<<<<<<< HEAD
   animation: bgShift 20s ease infinite;
 }
 
@@ -63,8 +70,6 @@ body::before {
   100% {
     background-position: 0% 50%;
   }
-=======
->>>>>>> cf594fbdab668a4b4b95a7b294c1e05b00d67c6e
 }
 
 /* ================= GRID ================= */
@@ -92,28 +97,22 @@ body::before {
   content: "";
   position: absolute;
   inset: 0;
-<<<<<<< HEAD
   background: linear-gradient(120deg,
       transparent,
-      rgba(56, 189, 248, 0.18),
+      rgba(56, 189, 248, 0.08),
       transparent);
-  transform: translateX(-120%);
-  transition: transform 0.8s ease;
-=======
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(56,189,248,0.08),
-    transparent
-  );
   opacity: 0.4;
   animation: softScan 18s linear infinite;
->>>>>>> cf594fbdab668a4b4b95a7b294c1e05b00d67c6e
 }
 
 @keyframes softScan {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(100%); }
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
 }
 
 .fly-card:hover {
@@ -121,7 +120,6 @@ body::before {
   box-shadow: var(--shadow-float);
 }
 
-<<<<<<< HEAD
 /* ================= DETAILS PANEL ================= */
 .details-panel {
   overflow-y: auto;
@@ -133,22 +131,16 @@ body::before {
 }
 
 .details-panel::-webkit-scrollbar-thumb {
-  background: #7dd3fc;
+  background: rgba(125, 211, 252, 0.4);
   border-radius: 10px;
 }
 
-=======
->>>>>>> cf594fbdab668a4b4b95a7b294c1e05b00d67c6e
 /* ================= TITLES ================= */
 .title-gradient {
   font-weight: 800;
   font-size: 2.6rem;
-<<<<<<< HEAD
   background: linear-gradient(135deg, var(--sky-dark), var(--sky-main));
   background-clip: text;
-=======
-  background: linear-gradient(135deg, #38bdf8, #7dd3fc);
->>>>>>> cf594fbdab668a4b4b95a7b294c1e05b00d67c6e
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -164,22 +156,14 @@ button,
   cursor: pointer;
   background: linear-gradient(135deg, #38bdf8, #0ea5e9);
   color: white;
-<<<<<<< HEAD
   box-shadow: inset 3px 3px 6px rgba(255, 255, 255, 0.3),
     inset -3px -3px 6px rgba(0, 0, 0, 0.15);
-=======
-  box-shadow: 0 8px 18px rgba(56,189,248,0.22);
->>>>>>> cf594fbdab668a4b4b95a7b294c1e05b00d67c6e
   transition: var(--transition);
 }
 
 button:hover {
   transform: translateY(-2px);
-<<<<<<< HEAD
   box-shadow: 0 10px 25px rgba(56, 189, 248, 0.35);
-=======
-  box-shadow: 0 12px 25px rgba(56,189,248,0.28);
->>>>>>> cf594fbdab668a4b4b95a7b294c1e05b00d67c6e
 }
 
 button:active {
@@ -188,20 +172,14 @@ button:active {
 
 /* ================= PANELS ================= */
 .glass-panel {
-<<<<<<< HEAD
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(20px);
-=======
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(18px);
->>>>>>> cf594fbdab668a4b4b95a7b294c1e05b00d67c6e
   border-radius: var(--radius-lg);
   border: 1px solid var(--glass-border);
   padding: 40px;
   box-shadow: var(--shadow-soft);
 }
 
-<<<<<<< HEAD
 .leave-management-panel {
   background: linear-gradient(135deg, rgba(255, 252, 240, 0.8), rgba(255, 244, 219, 0.7));
   border: 1px solid rgba(245, 158, 11, 0.2);
@@ -227,15 +205,6 @@ button:active {
     opacity: 1;
     transform: translateY(0);
   }
-=======
-/* ================= SCROLL ================= */
-.details-panel::-webkit-scrollbar {
-  width: 6px;
-}
-.details-panel::-webkit-scrollbar-thumb {
-  background: rgba(125,211,252,0.4);
-  border-radius: 10px;
->>>>>>> cf594fbdab668a4b4b95a7b294c1e05b00d67c6e
 }
 
 /* ================= RESPONSIVE ================= */
