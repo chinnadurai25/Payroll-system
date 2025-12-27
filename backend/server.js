@@ -13,10 +13,10 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
-  
 
 
-  const getDatesBetween = (startDate, endDate) => {
+
+const getDatesBetween = (startDate, endDate) => {
   const dates = [];
   let current = new Date(startDate);
   const end = new Date(endDate);
@@ -418,24 +418,40 @@ app.post("/api/attendance", async (req, res) => {
 app.get("/api/attendance", async (req, res) => {
   const { employeeId, month } = req.query;
   const record = await Attendance.findOne({ employeeId, month });
- let days = record?.days || new Map();
+  let days = record?.days || new Map();
+  const daysObj = Object.fromEntries(days);
 
-// Parse month (YYYY-MM)
-const [year, mon] = month.split('-').map(Number);
-const firstDay = new Date(year, mon - 1, 1);
-const lastDay = new Date(year, mon, 0);
+  // Parse month (YYYY-MM)
+  const [year, mon] = month.split('-').map(Number);
+  const lastDate = new Date(year, mon, 0).getDate();
 
-// Find all Sundays in the month
-for (let d = new Date(firstDay); d <= lastDay; d = new Date(d.getTime() + 86400000)) {
-  if (d.getDay() === 0) { // 0 = Sunday
-    const dateStr = d.toISOString().slice(0, 10);
-    if (!days.has(dateStr)) {
-      days.set(dateStr, 'L'); // Mark Sunday as Leave
+  // Iterate over all days in the month to ensure correct defaults
+  for (let d = 1; d <= lastDate; d++) {
+    const dateObj = new Date(year, mon - 1, d);
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+
+    const dayOfWeek = dateObj.getDay();
+
+    if (dayOfWeek === 0) { // Sunday
+      // Mark as Leave if not explicitly set to something else
+      if (!daysObj[dateStr]) {
+        daysObj[dateStr] = 'L';
+      }
+    } else if (dayOfWeek === 6) { // Saturday
+      // Explicitly remove accidental 'L' if it's a Saturday (Saturday is working day)
+      // BUT only if it's 'L'. If Admin manually marked it 'P' or 'A', keep it.
+      if (daysObj[dateStr] === 'L') {
+        // If it's a Saturday and marked as Leave, we assume it was a bugged default.
+        // We'll delete it from the object so it shows as unmarked/working.
+        delete daysObj[dateStr];
+      }
     }
   }
-}
 
-res.json(Object.fromEntries(days));
+  res.json(daysObj);
 });
 
 /* =========================================================
@@ -704,6 +720,19 @@ app.put("/api/leaves/:id", async (req, res) => {
   } catch (err) {
     console.error("Leave approval error:", err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Delete a leave request
+app.delete("/api/leaves/:id", async (req, res) => {
+  try {
+    const leave = await Leave.findByIdAndDelete(req.params.id);
+    if (!leave) {
+      return res.status(404).json({ message: "Leave request not found" });
+    }
+    res.json({ message: "Leave request deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting leave", error: err.message });
   }
 });
 
