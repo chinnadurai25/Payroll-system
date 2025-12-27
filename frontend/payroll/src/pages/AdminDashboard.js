@@ -172,7 +172,8 @@ const AdminDashboard = () => {
 
         const proRatedGross = (gross / daysInMonth) * presentDays;
         const taxAmount = proRatedGross * ((+payrollData.tax || 0) / 100);
-        const netSalary = proRatedGross - taxAmount;
+        const pfAmount = parseFloat(payrollData.pf) || 0;
+        const netSalary = proRatedGross - taxAmount - pfAmount;
 
         const payslipPayload = {
             employeeId,
@@ -190,7 +191,8 @@ const AdminDashboard = () => {
 
             deductions: {
                 taxPercent: payrollData.tax,
-                taxAmount
+                taxAmount,
+                pf: payrollData.pf
             },
 
             attendance: {
