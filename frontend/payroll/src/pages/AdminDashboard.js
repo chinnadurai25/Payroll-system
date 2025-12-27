@@ -26,8 +26,18 @@ const AdminDashboard = () => {
     const [leaveRequests, setLeaveRequests] = useState([]);
     const [pendingLeaveCount, setPendingLeaveCount] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
+    const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
     const { logout } = useAuth();
     const navigate = useNavigate();
+
+    const { user } = useAuth();
+
+useEffect(() => {
+  if (!user || user.role !== "admin") {
+    navigate("/login");
+  }
+}, [user, navigate]);
+
 
     // Poll for pending leaves count
     useEffect(() => {
@@ -91,6 +101,11 @@ const AdminDashboard = () => {
                 // Revert optimistic update if failed
                 console.error('Update failed');
                 // You might want to re-fetch here
+            } else {
+                // If the leave is for the selected employee, refresh attendance
+                if (request.employeeId === selectedEmployee?.employeeId) {
+                    setAttendanceRefreshKey(prev => prev + 1);
+                }
             }
         } catch (err) {
             console.warn('Backend update failed for leave request', err);
@@ -158,7 +173,13 @@ const AdminDashboard = () => {
         const daysInMonth = new Date(year, month, 0).getDate();
 
 
-        const presentDays = daysInMonth;
+        const empAttendance = attendanceMap[employeeId] || {};
+
+let presentDays = 0;
+Object.values(empAttendance).forEach(status => {
+  if (status === "P") presentDays++;
+});
+
 
         const gross =
             (+payrollData.basicSalary || 0) +
@@ -279,7 +300,7 @@ const AdminDashboard = () => {
 
         fetchAttendance();
         fetchPayslip();
-    }, [selectedEmployee, viewingMonth]);
+    }, [selectedEmployee, viewingMonth, attendanceRefreshKey]);
 
     const handleUpdateLeaveBalances = async (employeeId, balances) => {
         try {

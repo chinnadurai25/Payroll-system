@@ -29,6 +29,7 @@ const EmployeeDashboard = () => {
         return new Date(d.getFullYear(), d.getMonth(), 1);
     });
     const [myLeaves, setMyLeaves] = useState([]);
+    const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
     const [searchParams, setSearchParams] = useSearchParams();
     const viewMode = searchParams.get('v') || 'overview'; // 'overview' or 'slip'
 
@@ -109,7 +110,7 @@ const EmployeeDashboard = () => {
         fetchAttendance();
         fetchPayslip();
         fetchMyLeaves();
-    }, [employeeData, viewingMonth]);
+    }, [employeeData, viewingMonth, attendanceRefreshKey]);
 
     // Calculations
     const stats = useMemo(() => {
