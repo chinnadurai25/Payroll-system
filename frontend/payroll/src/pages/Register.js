@@ -40,14 +40,6 @@ const validateAccountAndIFSC = async (accountNumber, ifscCode) => {
   return { valid: true, bankName: TN_BANK_PREFIXES[bankPrefix] };
 };
 
-// ✅ Helper: Convert file to base64
-const toBase64 = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (err) => reject(err);
-  });
 
 // ✅ Optional: Resize image before upload
 const resizeImage = (file, maxWidth = 500, maxHeight = 500) =>
@@ -367,9 +359,28 @@ const Register = () => {
                 <Input label="Phone" name="emergencyPhone" value={formData.emergencyPhone} onChange={handleChange} required />
               </div>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input type="checkbox" name="consent" checked={formData.consent} onChange={handleChange} required />
-                <span style={{ fontSize: '0.9rem', color: '#64748b' }}>I agree to terms & policy</span>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                cursor: 'pointer',
+                margin: '15px 0',
+                padding: '8px 12px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '8px',
+                width: 'fit-content'
+              }}>
+                <input
+                  type="checkbox"
+                  name="consent"
+                  checked={formData.consent}
+                  onChange={handleChange}
+                  required
+                  style={{ width: 'auto', margin: 0 }}
+                />
+                <span style={{ fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.9)', fontWeight: '500' }}>
+                  I agree to the <span style={{ color: '#00d4ff', textDecoration: 'underline' }}>Terms & Policy</span>
+                </span>
               </label>
             </div>
 

@@ -164,7 +164,33 @@ const AttendancePanel = ({ employee, onMarkAttendance, onMonthChange, initialSta
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
+            <style>{`
+                @media (max-width: 768px) {
+                    .attendance-grid {
+                        grid-template-columns: repeat(7, 1fr) !important;
+                        gap: 3px !important;
+                    }
+                    .attendance-cell {
+                        min-height: 50px !important;
+                        padding: 4px !important;
+                    }
+                    .attendance-cell-header {
+                        font-size: 0.7rem !important;
+                    }
+                    .attendance-status-label {
+                        display: none !important;
+                    }
+                    .attendance-edit-btns {
+                        gap: 2px !important;
+                    }
+                    .attendance-edit-btns button {
+                        padding: 2px !important;
+                        font-size: 0.6rem !important;
+                        min-width: 18px !important;
+                    }
+                }
+            `}</style>
+            <div className="attendance-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
                 {weekdayShort.map(w => (
                     <div key={w} style={{ textAlign: 'center', fontWeight: 700, padding: '4px 0', color: 'var(--text-muted)', fontSize: '0.8rem' }}>{w}</div>
                 ))}
@@ -173,7 +199,7 @@ const AttendancePanel = ({ employee, onMarkAttendance, onMonthChange, initialSta
                     const status = cell ? statuses[cell.dateStr] : null;
                     const statusInfo = getStatusStyle(status);
                     return (
-                        <div key={i} style={{
+                        <div key={i} className="attendance-cell" style={{
                             border: '1px solid var(--border-color)',
                             minHeight: '80px',
                             padding: '6px',
@@ -189,13 +215,13 @@ const AttendancePanel = ({ employee, onMarkAttendance, onMonthChange, initialSta
                         }}>
                             {cell ? (
                                 <>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                    <div className="attendance-cell-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                                         <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{cell.day}</div>
                                         <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{cell.weekday[0]}</div>
                                     </div>
 
                                     {status && (
-                                        <div style={{
+                                        <div className="attendance-status-label" style={{
                                             fontSize: '0.6rem',
                                             fontWeight: 700,
                                             color: statusInfo.background,
@@ -210,7 +236,7 @@ const AttendancePanel = ({ employee, onMarkAttendance, onMonthChange, initialSta
                                     )}
 
                                     {isEditMode ? (
-                                        <div style={{ display: 'flex', gap: '3px', marginTop: 'auto', flexWrap: 'wrap' }}>
+                                        <div className="attendance-edit-btns" style={{ display: 'flex', gap: '3px', marginTop: 'auto', flexWrap: 'wrap' }}>
                                             {['P', 'L', 'A'].map(val => {
                                                 const active = statuses[cell.dateStr] === val;
                                                 return (

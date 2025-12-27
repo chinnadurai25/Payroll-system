@@ -33,10 +33,10 @@ const SalarySlip = ({ employee, payrollData, stats, onBack }) => {
             background: '#fff',
             borderRadius: 'var(--radius)',
             border: '1px solid var(--border-color)',
-            padding: '40px',
+            padding: '40px 20px',
             boxShadow: 'var(--shadow-lg)',
-            width: '100%',
-            maxWidth: '800px',
+            width: '95%',
+            maxWidth: '1000px',
             margin: '0 auto',
             position: 'relative',
             pageBreakInside: 'avoid',
@@ -66,6 +66,23 @@ const SalarySlip = ({ employee, payrollData, stats, onBack }) => {
                         display: none !important;
                     }
                 }
+                @media (max-width: 768px) {
+                    .salary-slip-container {
+                        padding: 20px 15px !important;
+                    }
+                    .slip-header {
+                        flex-direction: column;
+                        text-align: center;
+                        gap: 20px;
+                    }
+                    .slip-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 20px !important;
+                    }
+                    .slip-details-grid {
+                        grid-template-columns: 1fr !important;
+                    }
+                }
             `}</style>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
                 <img
@@ -90,7 +107,7 @@ const SalarySlip = ({ employee, payrollData, stats, onBack }) => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginBottom: '40px' }}>
+            <div className="slip-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginBottom: '40px' }}>
                 {/* Employee Details Section */}
                 <div>
                     <h4 style={{ color: 'var(--primary)', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Employee Details</h4>
@@ -125,7 +142,7 @@ const SalarySlip = ({ employee, payrollData, stats, onBack }) => {
                 {/* Attendance Summary Section */}
                 <div>
                     <h4 style={{ color: 'var(--primary)', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Attendance Summary</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
+                    <div className="slip-details-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
                         <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '10px', textAlign: 'center' }}>
                             <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Total Days</div>
                             <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{totalDays}</div>
@@ -138,7 +155,7 @@ const SalarySlip = ({ employee, payrollData, stats, onBack }) => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+            <div className="slip-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
                 {/* Earnings */}
                 <div>
                     <h4 style={{ background: '#f1f5f9', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px' }}>Earnings</h4>

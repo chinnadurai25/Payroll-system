@@ -1,0 +1,206 @@
+/* Navbar.css */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 30px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    gap: 12px;
+}
+
+.logo-image {
+    height: 45px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-text {
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    line-height: 1;
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.admin-btn {
+    background: var(--ocean-gradient);
+    padding: 10px 24px;
+    border-radius: 50px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(12, 74, 110, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.employee-btn {
+    background: var(--fly-gradient);
+    padding: 10px 24px;
+    border-radius: 50px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.4);
+    padding: 6px 16px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.user-name {
+    color: var(--text-main);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.user-role {
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: var(--secondary);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Burger Menu */
+.burger-menu {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 10px;
+    z-index: 1001;
+}
+
+.burger-line {
+    width: 25px;
+    height: 3px;
+    background: var(--text-main);
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 10px 20px;
+    }
+
+    .logo-image {
+        height: 35px;
+    }
+
+    .logo-text {
+        font-size: 1.3rem;
+    }
+
+    .burger-menu {
+        display: flex;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        justify-content: center;
+        padding: 50px 30px;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .nav-links .nav-link,
+    .nav-links .admin-btn,
+    .nav-links .employee-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .user-info {
+        flex-direction: column;
+        background: none;
+        border: none;
+        padding: 0;
+        gap: 15px;
+    }
+
+    .burger-menu.active .burger-line:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 6px);
+    }
+
+    .burger-menu.active .burger-line:nth-child(2) {
+        opacity: 0;
+    }
+
+    .burger-menu.active .burger-line:nth-child(3) {
+        transform: rotate(-45deg) translate(5px, -6px);
+    }
+}

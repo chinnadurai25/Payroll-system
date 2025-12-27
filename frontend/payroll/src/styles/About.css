@@ -3,39 +3,59 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 80px 20px 40px;
+    /* Top padding for navbar */
     position: relative;
     z-index: 1;
+    background: linear-gradient(-45deg, #0f172a, #1e293b, #0ea5e9, #1e40af);
+    background-size: 400% 400%;
+    animation: aboutGradient 15s ease infinite;
+}
+
+@keyframes aboutGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .about-glass-panel {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
     padding: 50px;
-    max-width: 900px;
+    max-width: 950px;
     width: 100%;
-    box-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 .about-header {
     text-align: center;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 30px;
     margin-bottom: 30px;
 }
 
 .about-header h1 {
-    font-size: 2.5rem;
-    color: #1e293b;
+    font-size: 3rem;
+    font-weight: 800;
     margin-bottom: 10px;
+    /* Already has title-gradient class in JS, but let's ensure it looks good */
 }
 
 .about-header p {
-    color: #64748b;
-    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.2rem;
+    font-weight: 500;
 }
 
 .about-content {
@@ -43,11 +63,12 @@
 }
 
 .about-content p {
-    font-size: 1.1rem;
-    color: #334155;
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.9);
     line-height: 1.8;
     margin-bottom: 25px;
     text-align: justify;
+    font-weight: 400;
 }
 
 .about-content p:last-child {

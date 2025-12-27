@@ -42,6 +42,7 @@
   font-size: 2.2rem;
   font-weight: 800;
   background: linear-gradient(135deg, #93c5fd, #ffffff);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -160,12 +161,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
-  );
+  background: linear-gradient(120deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent);
   transform: translateX(-120%);
   transition: transform 0.7s ease;
 }
@@ -198,6 +197,7 @@
     opacity: 0;
     transform: translateY(22px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -213,10 +213,14 @@
 
 @media (max-width: 480px) {
   .register-card {
-    padding: 1.8rem;
+    padding: 1.5rem;
   }
 
   .register-title {
     font-size: 1.8rem;
+  }
+
+  .form-section-grid {
+    gap: 15px;
   }
 }

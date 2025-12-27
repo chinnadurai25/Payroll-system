@@ -352,14 +352,7 @@ const AdminDashboard = () => {
         <div className="admin-page fade-in">
             <div className="container admin-container">
 
-                <div className="no-print" style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '30px',
-                    paddingTop: '60px', // For fixed navbar
-                    paddingBottom: '20px',
-                }}>
+                <div className="admin-header no-print">
                     <div>
                         <h1 className="title-gradient" style={{ fontSize: '2.5rem', marginBottom: '5px' }}>Admin Dashboard</h1>
                         <p style={{ color: 'var(--text-muted)', fontWeight: '500' }}>Strategic Payroll & Workforce Intelligence</p>

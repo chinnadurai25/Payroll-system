@@ -175,3 +175,38 @@
     border-radius: 12px;
     margin-top: 15px;
 }
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .messages-wrapper {
+        padding: 20px 15px;
+    }
+
+    .message-form-card,
+    .history-section {
+        padding: 20px;
+    }
+
+    .message-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .status-badge {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .title-gradient {
+        font-size: 2rem !important;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}

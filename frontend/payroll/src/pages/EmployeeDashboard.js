@@ -257,14 +257,7 @@ const EmployeeDashboard = () => {
     return (
         <div className="employee-card">
             <div className="container">
-                <div className="no-print" style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '40px',
-                    paddingTop: '60px', // Offset for fixed navbar
-                    paddingBottom: '20px',
-                }}>
+                <div className="dashboard-header no-print">
                     <div>
                         <h1 className="title-gradient" style={{ fontSize: '2.5rem', marginBottom: '5px' }}>My Portfolio</h1>
                         <p style={{ color: 'var(--text-muted)', fontWeight: '500' }}>Welcome, {employeeData?.fullName || user?.email}</p>

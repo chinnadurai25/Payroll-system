@@ -112,25 +112,48 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 15px -3px rgba(220, 38, 38, 0.4) !important;
 }
-button, .btn, .btn-modern {
-  position: relative;
-  overflow: hidden;
+
+button,
+.btn,
+.btn-modern {
+    position: relative;
+    overflow: hidden;
 }
 
-button::after, .btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at center,
-    rgba(56,189,248,0.45),
-    transparent 60%
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
+button::after,
+.btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center,
+            rgba(56, 189, 248, 0.45),
+            transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 button:hover::after,
 .btn:hover::after {
-  opacity: 0.4;
+    opacity: 0.4;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .btn-modern {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary,
+    .btn-payslip,
+    .btn-message,
+    .btn-secondary {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
+
+    .w-full {
+        width: 100% !important;
+        display: flex !important;
+    }
 }

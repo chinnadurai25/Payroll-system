@@ -37,7 +37,45 @@
     transform: translateY(-12px) scale(1.02);
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 15px 45px -5px rgba(14, 165, 233, 0.15);
-    border-color: #0ea5e9;
+    color: #0ea5e9;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .role-selection-container {
+        padding-top: 100px;
+        justify-content: flex-start;
+    }
+
+    .role-cards-wrapper {
+        gap: 20px;
+        padding: 0 10px;
+        margin-top: 2rem;
+    }
+
+    .role-card {
+        width: 100%;
+        max-width: 320px;
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .role-selection-container {
+        padding-top: 80px;
+    }
+
+    .role-selection-container h1 {
+        font-size: 2rem;
+    }
+
+    .role-card {
+        padding: 1.5rem;
+    }
+
+    .role-icon {
+        font-size: 3rem;
+    }
 }
 
 .role-icon {

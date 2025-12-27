@@ -20,6 +20,7 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import EmployeeProfile from "./pages/EmployeeProfile";
 import EmployeeSuccess from "./pages/EmployeeSuccess";
 import ForgotPassword from "./pages/ForgotPassword";
+import About from "./pages/About";
 
 import "./App.css";
 
@@ -44,10 +45,7 @@ const AppLayout = () => {
 
   // ❌ Hide navbar on employee/admin pages
   const hideNavbarRoutes = [
-    "/dashboard",
-    "/profile",
-    "/admin-dashboard",
-    "/messages"
+    // Navbar shown on dashboards for mobile navigation
   ];
 
   const hideNavbar = hideNavbarRoutes.includes(location.pathname);
@@ -65,6 +63,7 @@ const AppLayout = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/employee-success" element={<EmployeeSuccess />} />
+        <Route path="/about" element={<About />} />
 
         {/* 🔐 Admin */}
         <Route
