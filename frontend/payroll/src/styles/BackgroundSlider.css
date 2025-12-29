@@ -1,47 +1,187 @@
-/* BackgroundSlider.css */
+/* =========================================================
+   EXACT MATCH: FLY PAYROLL LUMINOUS SKY UI
+   ========================================================= */
+
+body {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #d7effc; /* The base sky blue from the image */
+    overflow-x: hidden;
+}
+
+/* =========================================================
+   1. THE WAVE & SPARKLE BACKGROUND
+   ========================================================= */
+
 .background-slider {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     z-index: -1;
+    background: linear-gradient(to bottom, #b3e5fc, #d7effc);
     overflow: hidden;
 }
 
-.slide {
+/* Layered Cloud Waves (Bottom) */
+.background-slider::after {
+    content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0;
-    transition: opacity 1.5s ease-in-out;
+    bottom: -10%;
+    left: -10%;
+    width: 120%;
+    height: 40%;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50% 50% 0 0; /* Creates the curved wave look */
+    filter: blur(40px);
+    z-index: 1;
 }
 
-.slide.active {
-    opacity: 1;
+/* Sparkling Stars Overlay */
+.sparkle-container {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle, #ffffff 1px, transparent 1px),
+        radial-gradient(circle, #ffffff 1.5px, transparent 1.5px);
+    background-size: 80px 80px, 120px 120px;
+    background-position: 0 0, 40px 40px;
+    opacity: 0.6;
+    animation: twinkle 4s infinite alternate;
+    z-index: 2;
 }
 
-.overlay {
+/* Glowing Blobs for that "Soft Light" */
+.aurora-blob {
     position: absolute;
-    top: 0;
-    left: 0;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(50px);
+    z-index: 0;
+    animation: float 15s infinite ease-in-out;
+}
+
+.blob-1 { top: 10%; left: 5%; }
+.blob-2 { bottom: 20%; right: 10%; animation-delay: -7s; }
+
+@keyframes twinkle {
+    0% { opacity: 0.3; transform: translateY(0); }
+    100% { opacity: 0.7; transform: translateY(-10px); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, -20px); }
+}
+
+/* =========================================================
+   2. THE MAIN WRAPPER & GLASS CARD
+   ========================================================= */
+
+.register-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Main Container Card */
+.register-card {
+    background: rgba(255, 255, 255, 0.85); /* Glassmorphism */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 40px;
+    padding: 60px;
+    width: 90%;
+    max-width: 1100px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    text-align: center;
+}
+
+/* =========================================================
+   3. ROLE SELECTION CARDS (ADMIN / EMPLOYEE)
+   ========================================================= */
+
+.role-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.role-card {
+    background: #ffffff; /* Solid White Inner Cards */
+    border-radius: 30px;
+    padding: 40px 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    transition: transform 0.3s ease;
+}
+
+.role-card:hover {
+    transform: translateY(-5px);
+}
+
+/* =========================================================
+   4. TYPOGRAPHY & BUTTONS
+   ========================================================= */
+
+.register-title {
+    font-size: 56px;
+    font-weight: 800;
+    color: #16a34a; /* Matches the "Fly Payroll" Greenish-Teal */
+    margin-bottom: 5px;
+}
+
+.register-subtitle {
+    color: #64748b;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+/* Input Fields - Classic High Visibility */
+.form-input {
     width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg,
-            rgba(255, 255, 255, 0.4) 0%,
-            rgba(255, 255, 255, 0.2) 100%);
-    backdrop-filter: blur(2px);
+    padding: 14px;
+    margin-bottom: 15px;
+    border: 2px solid #000000; /* YOUR BLACK BORDER REQUIREMENT */
+    border-radius: 12px;
+    background: #ffffff;
+    font-size: 15px;
+}
+
+/* Buttons from the Image */
+.btn-dark {
+    background: #1e3a8a; /* Deep Blue Button */
+    color: white;
+    width: 100%;
+    padding: 12px;
+    border-radius: 20px;
+    border: none;
+    font-weight: 700;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #1e3a8a;
+    width: 100%;
+    padding: 12px;
+    border-radius: 20px;
+    border: 2px solid #1e3a8a;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {
-    .overlay {
-        background: linear-gradient(135deg,
-                rgba(255, 255, 255, 0.6) 0%,
-                rgba(255, 255, 255, 0.4) 100%);
-    }
+    .role-container { grid-template-columns: 1fr; }
+    .register-title { font-size: 36px; }
 }
