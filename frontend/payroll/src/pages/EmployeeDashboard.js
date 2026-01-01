@@ -141,7 +141,8 @@ const EmployeeDashboard = () => {
         if (!employeeData?.employeeId) return;
 
         const fetchAssignment = async () => {
-            const today = new Date().toISOString().split('T')[0];
+            const d = new Date();
+            const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             try {
                 const res = await fetch(`http://192.168.1.7:5001/api/site-assignments?employeeId=${employeeData.employeeId}&date=${today}`);
                 if (res.ok) {
@@ -270,7 +271,8 @@ const EmployeeDashboard = () => {
     }, []);
 
     const markAttendanceWithPhoto = useCallback(async (photoData, verifyStatus = 'Manual Capture') => {
-        const today = new Date().toISOString().split('T')[0];
+        const d = new Date();
+        const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
         try {
             const res = await fetch('http://192.168.1.7:5001/api/attendance', {
@@ -294,7 +296,8 @@ const EmployeeDashboard = () => {
                 alert(`Attendance marked successfully: ${verifyStatus}`);
                 setAttendance(prev => ({ ...prev, [today]: 'P' }));
             } else {
-                alert('Attendance already marked for today');
+                const errData = await res.json().catch(() => ({}));
+                alert(`Error marking attendance: ${errData.message || res.statusText || 'Unknown error'}`);
             }
         } catch {
             alert('Connection error with attendance server');
@@ -575,7 +578,7 @@ const EmployeeDashboard = () => {
         }
 
         try {
-            const res = await fetch('http://localhost:5000/api/leaves', {
+            const res = await fetch('http://192.168.1.7:5001/api/leaves', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -590,7 +593,7 @@ const EmployeeDashboard = () => {
                 setShowLeaveModal(false);
                 setLeaveData({ startDate: '', endDate: '', reason: '', type: 'Casual' });
                 // Refresh leaves list
-                const refreshed = await fetch(`http://localhost:5000/api/leaves?employeeId=${encodeURIComponent(employeeData.employeeId)}`);
+                const refreshed = await fetch(`http://192.168.1.7:5001/api/leaves?employeeId=${encodeURIComponent(employeeData.employeeId)}`);
                 if (refreshed.ok) setMyLeaves(await refreshed.json());
             } else {
                 const errData = await res.json();
@@ -606,7 +609,7 @@ const EmployeeDashboard = () => {
         if (!window.confirm('Are you sure you want to delete this leave request?')) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/leaves/${id}`, {
+            const res = await fetch(`http://192.168.1.7:5001/api/leaves/${id}`, {
                 method: 'DELETE'
             });
 
@@ -855,10 +858,16 @@ const EmployeeDashboard = () => {
                                         const video = videoRef.current;
                                         const canvas = canvasRef.current;
                                         if (video && canvas) {
-                                            canvas.width = video.videoWidth;
-                                            canvas.height = video.videoHeight;
-                                            canvas.getContext('2d').drawImage(video, 0, 0);
-                                            const photoData = canvas.toDataURL('image/jpeg');
+                                            // Resize to smaller ID card size (320px width)
+                                            const width = 320;
+                                            const height = (video.videoHeight / video.videoWidth) * width;
+
+                                            canvas.width = width;
+                                            canvas.height = height;
+
+                                            canvas.getContext('2d').drawImage(video, 0, 0, width, height);
+                                            // Use lower quality jpeg to save space
+                                            const photoData = canvas.toDataURL('image/jpeg', 0.7);
                                             markAttendanceWithPhoto(photoData, 'Manual Capture');
                                         }
                                     }}
@@ -1059,7 +1068,7 @@ const EmployeeDashboard = () => {
                                                 borderRadius: '8px',
                                                 padding: '8px',
                                                 minHeight: '60px',
-                                                background: status ? (status === 'P' ? '#fff' : bg) : 'transparent',
+                                                background: status ? bg : 'transparent',
                                                 display: 'flex',
                                                 flexDirection: 'column',
                                                 alignItems: 'center',

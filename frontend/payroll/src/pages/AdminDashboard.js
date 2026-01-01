@@ -250,7 +250,7 @@ const AdminDashboard = () => {
             netSalary
         };
 
-        await fetch("http://localhost:5000/api/payslip", {
+        await fetch("http://192.168.1.7:5001/api/payslip", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payslipPayload)
@@ -271,7 +271,7 @@ const AdminDashboard = () => {
 
         // Attempt to POST to backend; if unavailable, just log and continue
         try {
-            const res = await fetch('http://localhost:5000/api/attendance', {
+            const res = await fetch('http://192.168.1.7:5001/api/attendance', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ employeeId, date, status })
@@ -290,7 +290,7 @@ const AdminDashboard = () => {
 
         const fetchAttendance = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/api/attendance?employeeId=${encodeURIComponent(selectedEmployee.employeeId)}&month=${viewingMonth}`);
+                const res = await fetch(`http://192.168.1.7:5001/api/attendance?employeeId=${encodeURIComponent(selectedEmployee.employeeId)}&month=${viewingMonth}`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
 
@@ -313,7 +313,7 @@ const AdminDashboard = () => {
 
         const fetchPayslip = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/api/payslip?employeeId=${encodeURIComponent(selectedEmployee.employeeId)}&month=${viewingMonth}`);
+                const res = await fetch(`http://192.168.1.7:5001/api/payslip?employeeId=${encodeURIComponent(selectedEmployee.employeeId)}&month=${viewingMonth}`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
                 setPayslipData(data);
@@ -329,7 +329,7 @@ const AdminDashboard = () => {
 
     const handleUpdateLeaveBalances = async (employeeId, balances) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/employees/${employeeId}`, {
+            const res = await fetch(`http://192.168.1.7:5001/api/employees/${employeeId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ leaveBalances: balances })
@@ -359,7 +359,7 @@ const AdminDashboard = () => {
 
         try {
             const res = await fetch(
-                `http://localhost:5000/api/employees/${employee.employeeId}`,
+                `http://192.168.1.7:5001/api/employees/${employee.employeeId}`,
                 {
                     method: "DELETE"
                 }

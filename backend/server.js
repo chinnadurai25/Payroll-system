@@ -6,7 +6,7 @@ require("dotenv").config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 
 // Simple request logger
 app.use((req, res, next) => {
@@ -127,6 +127,16 @@ const attendanceSchema = new mongoose.Schema(
 );
 
 attendanceSchema.index({ employeeId: 1, month: 1 }, { unique: true });
+
+// Migration: Drop legacy index if exists
+mongoose.connection.once('open', async () => {
+  try {
+    await mongoose.connection.collection('attendances').dropIndex('employeeId_1_date_1');
+    console.log("✅ Dropped legacy index: employeeId_1_date_1");
+  } catch (e) {
+    // Index might not exist, which is fine
+  }
+});
 
 const Attendance =
   mongoose.models.Attendance ||
@@ -412,21 +422,38 @@ app.put("/api/employees/:employeeId/payroll", async (req, res) => {
    ATTENDANCE
 ========================================================= */
 app.post("/api/attendance", async (req, res) => {
-  const { employeeId, date, status, photo, verifyStatus, location } = req.body;
-  const month = date.slice(0, 7);
+  try {
+    const { employeeId, date, status, photo, verifyStatus, location } = req.body;
+    console.log("📝 Received attendance data:", { employeeId, date, status, verifyStatus });
 
-  const updateData = { status };
-  if (photo) updateData.photo = photo;
-  if (verifyStatus) updateData.verifyStatus = verifyStatus;
-  if (location) updateData.location = location;
+    if (!employeeId || !date) {
+      return res.status(400).json({ message: "Missing employeeId or date" });
+    }
 
-  await Attendance.findOneAndUpdate(
-    { employeeId, month },
-    { $set: { [`days.${date}`]: updateData } },
-    { upsert: true, new: true }
-  );
+    const month = date.slice(0, 7);
 
-  res.json({ message: "Attendance saved successfully" });
+    const updateData = { status };
+    if (photo) updateData.photo = photo;
+    if (verifyStatus) updateData.verifyStatus = verifyStatus;
+    if (location) updateData.location = location;
+
+    await Attendance.findOneAndUpdate(
+      { employeeId, month },
+      { $set: { [`days.${date}`]: updateData } },
+      { upsert: true, new: true }
+    );
+
+    console.log(`✅ Attendance saved for ${employeeId} on ${date}: ${status}`);
+    res.json({ message: "Attendance saved successfully" });
+  } catch (err) {
+    console.error("❌ Error saving attendance:", err);
+    // Send detailed error to frontend for debugging
+    res.status(500).json({
+      message: "Failed to save attendance",
+      error: err.toString(),
+      details: err.message
+    });
+  }
 });
 
 app.get("/api/attendance", async (req, res) => {

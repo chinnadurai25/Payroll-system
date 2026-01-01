@@ -131,7 +131,7 @@ const EmployeeProfile = () => {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/employees/${employee.employeeId}`,
+        `http://192.168.1.7:5001/api/employees/${employee.employeeId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

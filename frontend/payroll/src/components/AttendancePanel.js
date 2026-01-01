@@ -70,10 +70,10 @@ const AttendancePanel = ({ employee, onMarkAttendance, onMonthChange, initialSta
     };
 
     const getStatusStyle = (val) => {
-        if (val === 'P') return { background: '#16a34a', color: 'white', label: 'Present' };
-        if (val === 'L') return { background: '#f97316', color: 'white', label: 'Leave' };
-        if (val === 'A') return { background: '#ef4444', color: 'white', label: 'Absent' };
-        return { background: 'transparent', color: 'var(--text-muted)', label: 'N/A' };
+        if (val === 'P') return { background: '#16a34a', cellBg: '#dcfce7', color: 'white', label: 'Present' };
+        if (val === 'L') return { background: '#f97316', cellBg: '#ffedd5', color: 'white', label: 'Leave' };
+        if (val === 'A') return { background: '#ef4444', cellBg: '#fee2e2', color: 'white', label: 'Absent' };
+        return { background: 'transparent', cellBg: 'transparent', color: 'var(--text-muted)', label: 'N/A' };
     };
 
     const getSmallButtonStyle = (active, value) => {
@@ -204,7 +204,7 @@ const AttendancePanel = ({ employee, onMarkAttendance, onMonthChange, initialSta
                             minHeight: '80px',
                             padding: '6px',
                             borderRadius: '8px',
-                            background: cell ? '#fff' : 'transparent',
+                            background: cell ? (status ? statusInfo.cellBg : '#fff') : 'transparent',
                             position: 'relative',
                             transition: 'transform 0.2s',
                             boxShadow: cell ? 'var(--shadow-sm)' : 'none',
