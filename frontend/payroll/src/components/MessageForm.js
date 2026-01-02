@@ -3,12 +3,32 @@ import { useAuth } from '../context/AuthContext';
 
 const MessageForm = ({ employee, onMessageSent }) => {
     const { user } = useAuth();
+
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
     const [category, setCategory] = useState('query');
+    const [images, setImages] = useState([]);
     const [sending, setSending] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
+
+    /* ---------------- IMAGE HANDLING ---------------- */
+
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
+
+        const validImages = files.filter(file =>
+            file.type.startsWith('image/')
+        );
+
+        setImages(prev => [...prev, ...validImages]);
+    };
+
+    const removeImage = (index) => {
+        setImages(prev => prev.filter((_, i) => i !== index));
+    };
+
+    /* ---------------- FORM SUBMIT ---------------- */
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,22 +37,25 @@ const MessageForm = ({ employee, onMessageSent }) => {
         setSuccessMsg('');
 
         try {
-            const payload = {
-                fromRole: 'employee',
-                fromId: user?.employeeId || user?.email,
-                fromName: employee?.fullName || user?.email,
-                toRole: 'admin',
-                toId: 'admin',
-                title,
-                message,
-                category,
-                status: 'open'
-            };
+            const formData = new FormData();
+
+            formData.append('fromRole', 'employee');
+            formData.append('fromId', user?.employeeId || user?.email);
+            formData.append('fromName', employee?.fullName || user?.email);
+            formData.append('toRole', 'admin');
+            formData.append('toId', 'admin');
+            formData.append('title', title);
+            formData.append('message', message);
+            formData.append('category', category);
+            formData.append('status', 'open');
+
+            images.forEach((img) => {
+                formData.append('images', img);
+            });
 
             const res = await fetch('http://localhost:5001/api/messages', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: formData
             });
 
             if (!res.ok) throw new Error('Failed to send message');
@@ -41,6 +64,7 @@ const MessageForm = ({ employee, onMessageSent }) => {
             setTitle('');
             setMessage('');
             setCategory('query');
+            setImages([]);
 
             if (onMessageSent) onMessageSent();
 
@@ -54,8 +78,16 @@ const MessageForm = ({ employee, onMessageSent }) => {
 
     return (
         <div className="message-form-card fade-in">
-            <h2 style={{ color: 'var(--primary)', marginBottom: '25px', fontSize: '1.6rem', textAlign: 'center' }}>📝 Send Query to Admin</h2>
+            <h2 style={{
+                color: 'var(--primary)',
+                marginBottom: '25px',
+                fontSize: '1.6rem',
+                textAlign: 'center'
+            }}>
+                📝 Send Query to Admin
+            </h2>
 
+            {/* SUCCESS MESSAGE */}
             {successMsg && (
                 <div style={{
                     background: '#ecfdf5',
@@ -64,15 +96,13 @@ const MessageForm = ({ employee, onMessageSent }) => {
                     borderRadius: '12px',
                     marginBottom: '20px',
                     border: '1px solid #6ee7b7',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
                     fontWeight: '600'
                 }}>
-                    <span>✅</span> {successMsg}
+                    ✅ {successMsg}
                 </div>
             )}
 
+            {/* ERROR MESSAGE */}
             {errorMsg && (
                 <div style={{
                     background: '#fef2f2',
@@ -87,6 +117,8 @@ const MessageForm = ({ employee, onMessageSent }) => {
             )}
 
             <form onSubmit={handleSubmit}>
+
+                {/* TITLE */}
                 <div style={{ marginBottom: '20px' }}>
                     <label className="form-label">Title</label>
                     <input
@@ -99,6 +131,7 @@ const MessageForm = ({ employee, onMessageSent }) => {
                     />
                 </div>
 
+                {/* CATEGORY */}
                 <div style={{ marginBottom: '20px' }}>
                     <label className="form-label">Category</label>
                     <select
@@ -107,13 +140,14 @@ const MessageForm = ({ employee, onMessageSent }) => {
                         className="form-select"
                     >
                         <option value="query">❓ General Query</option>
-                        <option value="error">⚠️ Error/Issue</option>
+                        <option value="error">⚠️ Error / Issue</option>
                         <option value="feedback">💡 Feedback</option>
                         <option value="other">📝 Other</option>
                     </select>
                 </div>
 
-                <div style={{ marginBottom: '25px' }}>
+                {/* MESSAGE */}
+                <div style={{ marginBottom: '20px' }}>
                     <label className="form-label">Message</label>
                     <textarea
                         value={message}
@@ -125,6 +159,65 @@ const MessageForm = ({ employee, onMessageSent }) => {
                     />
                 </div>
 
+                {/* IMAGE UPLOAD */}
+                <div style={{ marginBottom: '20px' }}>
+                    <label className="form-label">
+                        Attach Images (optional)
+                    </label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageChange}
+                        className="form-input"
+                    />
+
+                    {/* IMAGE PREVIEW */}
+                    {images.length > 0 && (
+                        <div style={{
+                            display: 'flex',
+                            gap: '12px',
+                            marginTop: '12px',
+                            flexWrap: 'wrap'
+                        }}>
+                            {images.map((img, index) => (
+                                <div key={index} style={{ position: 'relative' }}>
+                                    <img
+                                        src={URL.createObjectURL(img)}
+                                        alt="preview"
+                                        style={{
+                                            width: '90px',
+                                            height: '90px',
+                                            objectFit: 'cover',
+                                            borderRadius: '10px',
+                                            border: '1px solid #ddd'
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImage(index)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '-6px',
+                                            right: '-6px',
+                                            background: '#ef4444',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '50%',
+                                            width: '22px',
+                                            height: '22px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* SUBMIT */}
                 <button
                     type="submit"
                     disabled={sending}

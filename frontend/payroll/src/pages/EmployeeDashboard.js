@@ -63,6 +63,10 @@ const EmployeeDashboard = () => {
     const [livenessMsg, setLivenessMsg] = useState('Position your face in the frame');
     const [referenceDescriptor, setReferenceDescriptor] = useState(null);
     const [showCameraModal, setShowCameraModal] = useState(false);
+    // Daily text verification
+const [dailyText, setDailyText] = useState("");
+const [typedText, setTypedText] = useState("");
+const [textVerified, setTextVerified] = useState(false);
 
     // State
     const [employeeData, setEmployeeData] = useState(null);
@@ -269,6 +273,26 @@ const EmployeeDashboard = () => {
             video.srcObject = null;
         }
     }, []);
+    /* =========================
+   DAILY TEXT VERIFICATION
+   ========================= */
+
+const DAILY_TEXTS = [
+  "Discipline builds success",
+  "Honesty defines professionalism",
+  "Consistency creates excellence",
+  "Integrity matters every day",
+  "Responsibility reflects character"
+];
+
+const getTodayText = () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const index =
+    today.split("").reduce((sum, ch) => sum + ch.charCodeAt(0), 0) %
+    DAILY_TEXTS.length;
+  return DAILY_TEXTS[index];
+};
+
 
     const markAttendanceWithPhoto = useCallback(async (photoData, verifyStatus = 'Manual Capture') => {
         const d = new Date();
@@ -420,6 +444,17 @@ const EmployeeDashboard = () => {
         }
         return () => stopCamera();
     }, [showCameraModal, startCamera, stopCamera]);
+
+    useEffect(() => {
+  setDailyText(getTodayText());
+}, []);
+
+    useEffect(() => {
+  setTextVerified(
+    typedText.trim().toLowerCase() === dailyText.toLowerCase()
+  );
+}, [typedText, dailyText]);
+
 
     // Fetch attendance for the viewing month
     useEffect(() => {
@@ -893,9 +928,44 @@ const EmployeeDashboard = () => {
 
                 {viewMode === 'overview' && (
                     <>
+                        {/* DAILY TEXT VERIFICATION */}
+<div className="fly-card" style={{ padding: "20px", marginBottom: "20px" }}>
+  <h3 style={{ marginBottom: "10px", fontSize: "1rem" }}>
+    🔐 Daily Text Verification
+  </h3>
+
+  <p style={{
+    background: "#f1f5f9",
+    padding: "10px",
+    borderRadius: "8px",
+    fontWeight: "700",
+    textAlign: "center"
+  }}>
+    {dailyText}
+  </p>
+
+  <input
+    type="text"
+    value={typedText}
+    onChange={(e) => setTypedText(e.target.value)}
+    placeholder="Type the above text exactly"
+    className="form-input"
+    style={{ marginTop: "12px" }}
+  />
+
+  <p style={{
+    marginTop: "6px",
+    fontSize: "0.75rem",
+    color: textVerified ? "#16a34a" : "#ef4444",
+    fontWeight: "600"
+  }}>
+    {textVerified ? "✅ Text verified" : "❌ Text does not match"}
+  </p>
+</div>
+
                         <Button
                             onClick={() => setShowCameraModal(true)}
-                            disabled={!canMarkAttendance}
+                            disabled={!canMarkAttendance || !textVerified}
                             style={{
                                 background: canMarkAttendance
                                     ? 'linear-gradient(135deg, #22c55e, #16a34a)'
