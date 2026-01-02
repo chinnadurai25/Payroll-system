@@ -300,7 +300,14 @@ const AdminDashboard = () => {
                         if (item.date && item.status) statuses[item.date] = item.status;
                     });
                 } else if (data && typeof data === 'object') {
-                    statuses = data;
+                    Object.keys(data).forEach(date => {
+                        const dayData = data[date];
+                        if (typeof dayData === 'string') {
+                            statuses[date] = dayData; // backward compatibility
+                        } else if (dayData && dayData.status) {
+                            statuses[date] = dayData.status;
+                        }
+                    });
                 }
 
                 setAttendanceMap(prev => ({ ...prev, [selectedEmployee.employeeId]: statuses }));

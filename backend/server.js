@@ -217,7 +217,8 @@ const messageSchema = new mongoose.Schema(
     category: { type: String, enum: ["error", "query", "feedback", "other"], default: "query" },
     isRead: { type: Boolean, default: false },
     status: { type: String, enum: ["open", "solved", "closed"], default: "open" },
-    response: { type: String, default: null }
+    response: { type: String, default: null },
+    images: [String]
   },
   { timestamps: true }
 );
@@ -597,7 +598,15 @@ app.get("/api/leaves/pending-count", async (req, res) => {
 
 // Send message
 app.post("/api/messages", async (req, res) => {
+  console.log("📨 Received message submission");
+  console.log("Keys:", Object.keys(req.body));
+  if (req.body.images) {
+    console.log("📷 Images count:", req.body.images.length);
+  } else {
+    console.log("⚠️ No images found in payload");
+  }
   const msg = await Message.create(req.body);
+  console.log("✅ Message saved with ID:", msg._id);
   res.json(msg);
 });
 

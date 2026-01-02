@@ -27,7 +27,7 @@ const Messages = () => {
 
     const fetchEmployeeData = async () => {
       try {
-        const res = await fetch("http://192.168.1.7:5001/api/employees");
+        const res = await fetch("http://localhost:5001/api/employees");
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         const currentEmp = data.find(emp => emp.email === user.email || emp.employeeId === user.employeeId);
@@ -47,7 +47,7 @@ const Messages = () => {
       const role = user?.role || "employee";
       const id = role === "admin" ? "admin" : (user?.employeeId || user?.email || user?.id || "");
 
-      const url = `http://192.168.1.7:5001/api/messages?role=${role}&id=${encodeURIComponent(id)}`;
+      const url = `http://localhost:5001/api/messages?role=${role}&id=${encodeURIComponent(id)}`;
       const res = await fetch(url);
 
       if (!res.ok) throw new Error("Failed to fetch messages");

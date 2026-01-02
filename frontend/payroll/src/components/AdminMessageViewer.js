@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 const AdminMessageViewer = ({ messages, onStatusChange, onDelete, loading }) => {
     const [expandedId, setExpandedId] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
     const [responseText, setResponseText] = useState({});
     const [filter, setFilter] = useState('open'); // open, solved, all
 
@@ -9,7 +10,7 @@ const AdminMessageViewer = ({ messages, onStatusChange, onDelete, loading }) => 
         if (!responseText[messageId]?.trim()) return;
 
         try {
-            const res = await fetch(`http://192.168.1.7:5001/api/messages/${messageId}`, {
+            const res = await fetch(`http://localhost:5001/api/messages/${messageId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -31,7 +32,7 @@ const AdminMessageViewer = ({ messages, onStatusChange, onDelete, loading }) => 
     const handleDelete = async (messageId) => {
         if (!window.confirm('Delete this message?')) return;
         try {
-            const res = await fetch(`http://192.168.1.7:5001/api/messages/${messageId}`, {
+            const res = await fetch(`http://localhost:5001/api/messages/${messageId}`, {
                 method: 'DELETE'
             });
             if (!res.ok) throw new Error('Failed to delete');
@@ -104,7 +105,10 @@ const AdminMessageViewer = ({ messages, onStatusChange, onDelete, loading }) => 
                         <div
                             key={msg._id}
                             className={`message-card ${!msg.isRead ? 'unread' : ''}`}
-                            onClick={() => setExpandedId(expandedId === msg._id ? null : msg._id)}
+                            onClick={() => {
+                                console.log("Expanding message:", msg);
+                                setExpandedId(expandedId === msg._id ? null : msg._id);
+                            }}
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '20px' }}>
                                 <div style={{ flex: 1 }}>
@@ -140,6 +144,80 @@ const AdminMessageViewer = ({ messages, onStatusChange, onDelete, loading }) => 
                                     <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', marginBottom: '25px', lineHeight: '1.7', color: '#334155' }}>
                                         {msg.message}
                                     </div>
+
+                                    {msg.images && msg.images.length > 0 && (
+                                        <div style={{ marginBottom: '25px' }}>
+                                            <h4 style={{ fontSize: '0.85rem', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '10px' }}>Attached Images</h4>
+                                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                                {msg.images.map((img, idx) => (
+                                                    <img
+                                                        key={idx}
+                                                        src={img}
+                                                        alt={`Start attachment ${idx + 1}`}
+                                                        style={{
+                                                            maxWidth: '200px',
+                                                            maxHeight: '200px',
+                                                            borderRadius: '8px',
+                                                            border: '1px solid #e2e8f0',
+                                                            objectFit: 'cover',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => setSelectedImage(img)}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* IMAGE MODAL */}
+                                    {selectedImage && (
+                                        <div
+                                            style={{
+                                                position: 'fixed',
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                background: 'rgba(0,0,0,0.85)',
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                zIndex: 9999,
+                                                padding: '20px'
+                                            }}
+                                            onClick={() => setSelectedImage(null)}
+                                        >
+                                            <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
+                                                <button
+                                                    onClick={() => setSelectedImage(null)}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '-40px',
+                                                        right: '-10px',
+                                                        background: 'transparent',
+                                                        border: 'none',
+                                                        color: 'white',
+                                                        fontSize: '2rem',
+                                                        cursor: 'pointer',
+                                                        zIndex: 10000
+                                                    }}
+                                                >
+                                                    ✕
+                                                </button>
+                                                <img
+                                                    src={selectedImage}
+                                                    alt="Full view"
+                                                    style={{
+                                                        maxWidth: '100%',
+                                                        maxHeight: '85vh',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                                                    }}
+                                                    onClick={(e) => e.stopPropagation()} // Prevent closing when clicking image
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {msg.response && (
                                         <div className="admin-response">

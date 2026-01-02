@@ -37,25 +37,35 @@ const MessageForm = ({ employee, onMessageSent }) => {
         setSuccessMsg('');
 
         try {
-            const formData = new FormData();
+            // Convert images to Base64
+            const convertToBase64 = (file) => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = (error) => reject(error);
+                });
+            };
 
-            formData.append('fromRole', 'employee');
-            formData.append('fromId', user?.employeeId || user?.email);
-            formData.append('fromName', employee?.fullName || user?.email);
-            formData.append('toRole', 'admin');
-            formData.append('toId', 'admin');
-            formData.append('title', title);
-            formData.append('message', message);
-            formData.append('category', category);
-            formData.append('status', 'open');
+            const base64Images = await Promise.all(images.map(img => convertToBase64(img)));
 
-            images.forEach((img) => {
-                formData.append('images', img);
-            });
+            const payload = {
+                fromRole: 'employee',
+                fromId: user?.employeeId || user?.email,
+                fromName: employee?.fullName || user?.email,
+                toRole: 'admin',
+                toId: 'admin',
+                title,
+                message,
+                category,
+                status: 'open',
+                images: base64Images
+            };
 
             const res = await fetch('http://localhost:5001/api/messages', {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
 
             if (!res.ok) throw new Error('Failed to send message');
