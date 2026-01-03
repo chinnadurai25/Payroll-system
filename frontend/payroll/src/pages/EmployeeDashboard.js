@@ -64,9 +64,9 @@ const EmployeeDashboard = () => {
     const [referenceDescriptor, setReferenceDescriptor] = useState(null);
     const [showCameraModal, setShowCameraModal] = useState(false);
     // Daily text verification
-const [dailyText, setDailyText] = useState("");
-const [typedText, setTypedText] = useState("");
-const [textVerified, setTextVerified] = useState(false);
+    const [dailyText, setDailyText] = useState("");
+    const [typedText, setTypedText] = useState("");
+    const [textVerified, setTextVerified] = useState(false);
 
     // State
     const [employeeData, setEmployeeData] = useState(null);
@@ -277,21 +277,21 @@ const [textVerified, setTextVerified] = useState(false);
    DAILY TEXT VERIFICATION
    ========================= */
 
-const DAILY_TEXTS = [
-  "Discipline builds success",
-  "Honesty defines professionalism",
-  "Consistency creates excellence",
-  "Integrity matters every day",
-  "Responsibility reflects character"
-];
+    const DAILY_TEXTS = [
+        "Discipline builds success",
+        "Honesty defines professionalism",
+        "Consistency creates excellence",
+        "Integrity matters every day",
+        "Responsibility reflects character"
+    ];
 
-const getTodayText = () => {
-  const today = new Date().toISOString().slice(0, 10);
-  const index =
-    today.split("").reduce((sum, ch) => sum + ch.charCodeAt(0), 0) %
-    DAILY_TEXTS.length;
-  return DAILY_TEXTS[index];
-};
+    const getTodayText = () => {
+        const today = new Date().toISOString().slice(0, 10);
+        const index =
+            today.split("").reduce((sum, ch) => sum + ch.charCodeAt(0), 0) %
+            DAILY_TEXTS.length;
+        return DAILY_TEXTS[index];
+    };
 
 
     const markAttendanceWithPhoto = useCallback(async (photoData, verifyStatus = 'Manual Capture') => {
@@ -446,14 +446,15 @@ const getTodayText = () => {
     }, [showCameraModal, startCamera, stopCamera]);
 
     useEffect(() => {
-  setDailyText(getTodayText());
-}, []);
+        setDailyText(getTodayText());
+    }, []);
 
     useEffect(() => {
-  setTextVerified(
-    typedText.trim().toLowerCase() === dailyText.toLowerCase()
-  );
-}, [typedText, dailyText]);
+        const normalize = (str) => str.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").trim().toLowerCase();
+        setTextVerified(
+            normalize(typedText) === normalize(dailyText)
+        );
+    }, [typedText, dailyText]);
 
 
     // Fetch attendance for the viewing month
@@ -928,40 +929,99 @@ const getTodayText = () => {
 
                 {viewMode === 'overview' && (
                     <>
-                        {/* DAILY TEXT VERIFICATION */}
-<div className="fly-card" style={{ padding: "20px", marginBottom: "20px" }}>
-  <h3 style={{ marginBottom: "10px", fontSize: "1rem" }}>
-    🔐 Daily Text Verification
-  </h3>
+                        {/* DAILY VOICE VERIFICATION */}
+                        <div className="fly-card" style={{ padding: "20px", marginBottom: "20px" }}>
+                            <h3 style={{ marginBottom: "10px", fontSize: "1rem" }}>
+                                🎙️ Daily Voice Verification
+                            </h3>
 
-  <p style={{
-    background: "#f1f5f9",
-    padding: "10px",
-    borderRadius: "8px",
-    fontWeight: "700",
-    textAlign: "center"
-  }}>
-    {dailyText}
-  </p>
+                            <p style={{
+                                background: "#f1f5f9",
+                                padding: "10px",
+                                borderRadius: "8px",
+                                fontWeight: "700",
+                                textAlign: "center",
+                                marginBottom: "15px"
+                            }}>
+                                "{dailyText}"
+                            </p>
 
-  <input
-    type="text"
-    value={typedText}
-    onChange={(e) => setTypedText(e.target.value)}
-    placeholder="Type the above text exactly"
-    className="form-input"
-    style={{ marginTop: "12px" }}
-  />
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+                                {!textVerified ? (
+                                    <Button
+                                        onClick={() => {
+                                            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                                                alert("Your browser does not support voice recognition. Please use Chrome or Edge.");
+                                                return;
+                                            }
 
-  <p style={{
-    marginTop: "6px",
-    fontSize: "0.75rem",
-    color: textVerified ? "#16a34a" : "#ef4444",
-    fontWeight: "600"
-  }}>
-    {textVerified ? "✅ Text verified" : "❌ Text does not match"}
-  </p>
-</div>
+                                            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                                            const recognition = new SpeechRecognition();
+
+                                            recognition.lang = 'en-US';
+                                            recognition.interimResults = false;
+                                            recognition.maxAlternatives = 1;
+
+                                            setTypedText("Listening..."); // Reusing typedText state for status/feedback
+
+                                            recognition.onstart = () => {
+                                                // setIsListening(true); // You can add this state if needed for UI styling
+                                            };
+
+                                            recognition.onresult = (event) => {
+                                                const transcript = event.results[0][0].transcript;
+                                                setTypedText(transcript); // Show what was heard
+                                            };
+
+                                            recognition.onerror = (event) => {
+                                                console.error("Speech recognition error", event.error);
+                                                setTypedText("Error: " + event.error);
+                                            };
+
+                                            recognition.onend = () => {
+                                                // setIsListening(false);
+                                            };
+
+                                            recognition.start();
+                                        }}
+                                        style={{
+                                            background: 'var(--primary)',
+                                            color: 'white',
+                                            padding: '12px 24px',
+                                            borderRadius: '50px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            fontSize: '1rem'
+                                        }}
+                                    >
+                                        🎙️ Tap to Read Aloud
+                                    </Button>
+                                ) : (
+                                    <div style={{ fontSize: '1.2rem', color: '#16a34a', fontWeight: 'bold' }}>
+                                        ✅ Verified
+                                    </div>
+                                )}
+
+                                {typedText && (
+                                    <div style={{ textAlign: 'center' }}>
+                                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Heard:</p>
+                                        <p style={{ fontSize: '1rem', fontStyle: 'italic', fontWeight: '600', color: 'var(--text-main)' }}>
+                                            "{typedText}"
+                                        </p>
+                                    </div>
+                                )}
+
+                                <p style={{
+                                    marginTop: "6px",
+                                    fontSize: "0.75rem",
+                                    color: textVerified ? "#16a34a" : "#ef4444",
+                                    fontWeight: "600"
+                                }}>
+                                    {textVerified ? "✅ Voice matched successfully" : (typedText && typedText !== "Listening..." ? "❌ Phrase does not match. Try again." : "")}
+                                </p>
+                            </div>
+                        </div>
 
                         <Button
                             onClick={() => setShowCameraModal(true)}
