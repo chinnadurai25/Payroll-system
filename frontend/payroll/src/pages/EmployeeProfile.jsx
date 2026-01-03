@@ -36,7 +36,7 @@ const EmployeeProfile = () => {
 
     const fetchEmployee = async () => {
       try {
-        const res = await fetch("http://192.168.1.7:5001/api/employees");
+        const res = await fetch("http://localhost:5001/api/employees");
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         const current = data.find(
@@ -131,7 +131,7 @@ const EmployeeProfile = () => {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://192.168.1.7:5001/api/employees/${employee.employeeId}`,
+        `http://localhost:5001/api/employees/${employee.employeeId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

@@ -49,6 +49,11 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 
 const EmployeeDashboard = () => {
+    const today = useMemo(() => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }, []);
+
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const weekdayShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -1024,18 +1029,18 @@ const EmployeeDashboard = () => {
                         </div>
 
                         <Button
-                            onClick={() => setShowCameraModal(true)}
-                            disabled={!canMarkAttendance || !textVerified}
-                            style={{
-                                background: canMarkAttendance
-                                    ? 'linear-gradient(135deg, #22c55e, #16a34a)'
-                                    : '#9ca3af',
-                                color: 'white',
-                                cursor: canMarkAttendance ? 'pointer' : 'not-allowed'
-                            }}
-                        >
-                            🕘 Mark Attendance
-                        </Button>
+        onClick={() => setShowCameraModal(true)}
+        disabled={!canMarkAttendance || !textVerified || attendance[today] === 'P'}
+        style={{
+            background: (canMarkAttendance && textVerified && attendance[today] !== 'P')
+                ? 'linear-gradient(135deg, #22c55e, #16a34a)'
+                : '#9ca3af',
+            color: 'white',
+            cursor: (canMarkAttendance && textVerified && attendance[today] !== 'P') ? 'pointer' : 'not-allowed'
+        }}
+    >
+        {attendance[today] === 'P' ? '✅ Attendance Already Marked' : '🕘 Mark Attendance'}
+    </Button>
 
                         <p style={{ fontSize: '0.8rem', color: '#64748b', textAlign: 'center', marginBottom: '5px' }}>
                             📡 Database: {allLocations.length > 0 ? `Connected (${allLocations.length} Locations)` : 'Connecting / Empty'}
