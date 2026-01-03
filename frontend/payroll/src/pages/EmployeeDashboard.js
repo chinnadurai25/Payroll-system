@@ -19,7 +19,7 @@ const faceapi = window.faceapi;
 /* =========================
    TESTING / DEVELOPER CONFIG
    ========================= */
-const USE_MOCK_LOCATION = true; // Set to TRUE to simulate being at the coordinates below
+const USE_MOCK_LOCATION = false; // Set to TRUE to simulate being at the coordinates below (for testing only)
 const TEST_LAT = 9.572462;
 const TEST_LNG = 77.962319;
 
@@ -145,6 +145,62 @@ const EmployeeDashboard = () => {
         if (employeeData) loadModelsAndDescriptor();
     }, [employeeData]);
 
+    // Helper function to check location and update state
+    const checkLocationAndUpdate = useCallback((userLat, userLng) => {
+        setCurrentPos({ lat: userLat, lng: userLng });
+
+        let matchedLoc = null;
+        let nearestLoc = null;
+        let minDist = Infinity;
+
+        // Helper to check list
+        const checkLocations = (vals) => {
+            for (let loc of vals) {
+                const dist = getDistance(userLat, userLng, loc.latitude, loc.longitude);
+                const radius = loc.radius || 100;
+
+                // Keep track of nearest for error message
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestLoc = { ...loc, dist };
+                }
+
+                if (dist <= radius) {
+                    return { ...loc, dist }; // Found a match!
+                }
+            }
+            return null;
+        };
+
+        // Always check ALL registered locations (more flexible)
+        // This allows employees to mark attendance at any registered office location
+        matchedLoc = checkLocations(allLocations);
+
+        if (matchedLoc) {
+            setCanMarkAttendance(true);
+            // Show both current GPS and office location for comparison
+            const officeLoc = allLocations.find(loc => loc.name === matchedLoc.name);
+            if (officeLoc) {
+                setLocationMsg(`✅ Inside ${matchedLoc.name} (${Math.round(matchedLoc.dist)} m)\n📍 Your GPS: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}\n🏢 Office: ${officeLoc.latitude.toFixed(6)}, ${officeLoc.longitude.toFixed(6)}`);
+            } else {
+                setLocationMsg(`✅ Inside ${matchedLoc.name} (${Math.round(matchedLoc.dist)} m)\n📍 Your GPS: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`);
+            }
+        } else {
+            setCanMarkAttendance(false);
+            // Determine what to show in error
+            if (nearestLoc) {
+                const officeLoc = allLocations.find(loc => loc.name === nearestLoc.name);
+                if (officeLoc) {
+                    setLocationMsg(`❌ Outside ${nearestLoc.name} (${Math.round(nearestLoc.dist)} m)\n📍 Your GPS: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}\n🏢 Office: ${officeLoc.latitude.toFixed(6)}, ${officeLoc.longitude.toFixed(6)}`);
+                } else {
+                    setLocationMsg(`❌ Outside ${nearestLoc.name} (${Math.round(nearestLoc.dist)} m)\n📍 Your GPS: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`);
+                }
+            } else {
+                setLocationMsg(`❌ No Office Assigned/Found\n📍 Your GPS: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`);
+            }
+        }
+    }, [assignedLocation, allLocations]);
+
     // Fetch site assignment for current date
     useEffect(() => {
         if (!employeeData?.employeeId) return;
@@ -192,7 +248,7 @@ const EmployeeDashboard = () => {
 
         if (!employeeData) return;
 
-        // GPS LOCATION STRATEGY
+        // GPS LOCATION STRATEGY - Get fresh, high-accuracy GPS (same as map API)
         const getGeoLocation = (onSuccess, onError) => {
             if (USE_MOCK_LOCATION) {
                 console.log("⚠️ USING MOCK LOCATION");
@@ -204,7 +260,19 @@ const EmployeeDashboard = () => {
                     }
                 });
             } else {
-                navigator.geolocation.getCurrentPosition(onSuccess, onError, { enableHighAccuracy: true });
+                // Use same settings as map API for consistency:
+                // - enableHighAccuracy: true (uses GPS, not network)
+                // - maximumAge: 0 (forces fresh location, no cache)
+                // - timeout: 15000 (15 seconds max wait)
+                navigator.geolocation.getCurrentPosition(
+                    onSuccess, 
+                    onError, 
+                    { 
+                        enableHighAccuracy: true,
+                        maximumAge: 0,  // Force fresh GPS, no cached data
+                        timeout: 15000  // 15 second timeout
+                    }
+                );
             }
         };
 
@@ -212,62 +280,14 @@ const EmployeeDashboard = () => {
             (pos) => {
                 const userLat = pos.coords.latitude;
                 const userLng = pos.coords.longitude;
-                setCurrentPos({ lat: userLat, lng: userLng });
-
-                // STRICT VALIDATION LOGIC
-                // 1. If Assigned: Must be at that specific location.
-                // 2. If Not Assigned: Must be at ANY valid company location.
-
-                let matchedLoc = null;
-                let nearestLoc = null;
-                let minDist = Infinity;
-
-                // Helper to check list
-                const checkLocations = (vals) => {
-                    for (let loc of vals) {
-                        const dist = getDistance(userLat, userLng, loc.latitude, loc.longitude);
-                        const radius = loc.radius || 100;
-
-                        // Keep track of nearest for error message
-                        if (dist < minDist) {
-                            minDist = dist;
-                            nearestLoc = { ...loc, dist };
-                        }
-
-                        if (dist <= radius) {
-                            return { ...loc, dist }; // Found a match!
-                        }
-                    }
-                    return null;
-                };
-
-                if (assignedLocation) {
-                    // Check ONLY assigned location
-                    matchedLoc = checkLocations([assignedLocation]);
-                } else {
-                    // Check ALL locations
-                    matchedLoc = checkLocations(allLocations);
-                }
-
-                if (matchedLoc) {
-                    setCanMarkAttendance(true);
-                    setLocationMsg(`✅ Inside ${matchedLoc.name} (${Math.round(matchedLoc.dist)} m)`);
-                } else {
-                    setCanMarkAttendance(false);
-                    // Determine what to show in error
-                    if (nearestLoc) {
-                        setLocationMsg(`❌ Outside ${nearestLoc.name} (${Math.round(nearestLoc.dist)} m) \n Your Pos: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`);
-                    } else {
-                        setLocationMsg(`❌ No Office Assigned/Found \n Your Pos: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`);
-                    }
-                }
+                checkLocationAndUpdate(userLat, userLng);
             },
             () => {
                 setCanMarkAttendance(false);
                 setLocationMsg('❌ Location permission required');
             }
         );
-    }, [employeeData, assignedLocation, allLocations]);
+    }, [employeeData, assignedLocation, allLocations, checkLocationAndUpdate]);
 
     const stopCamera = useCallback(() => {
         const video = videoRef.current;
@@ -303,7 +323,64 @@ const EmployeeDashboard = () => {
         const d = new Date();
         const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
+        // Get real-time GPS coordinates
+        const getRealTimeGPS = () => {
+            return new Promise((resolve, reject) => {
+                if (USE_MOCK_LOCATION) {
+                    // Use mock location for testing
+                    console.log("⚠️ USING MOCK LOCATION FOR ATTENDANCE");
+                    resolve({
+                        lat: TEST_LAT,
+                        lng: TEST_LNG
+                    });
+                } else {
+                    // Check if geolocation is available
+                    if (!navigator.geolocation) {
+                        reject(new Error('Geolocation is not supported by your browser. Please use a modern browser.'));
+                        return;
+                    }
+
+                    // Get real-time GPS position - this will trigger browser permission prompt
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            resolve({
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            });
+                        },
+                        (error) => {
+                            let errorMessage = 'Location access denied. ';
+                            switch(error.code) {
+                                case error.PERMISSION_DENIED:
+                                    errorMessage += 'Please allow location access in your browser settings to mark attendance.';
+                                    break;
+                                case error.POSITION_UNAVAILABLE:
+                                    errorMessage += 'Location information is unavailable.';
+                                    break;
+                                case error.TIMEOUT:
+                                    errorMessage += 'Location request timed out. Please try again.';
+                                    break;
+                                default:
+                                    errorMessage += error.message;
+                                    break;
+                            }
+                            reject(new Error(errorMessage));
+                        },
+                        { 
+                            enableHighAccuracy: true, 
+                            timeout: 15000, 
+                            maximumAge: 0  // Force fresh GPS, no cache
+                        }
+                    );
+                }
+            });
+        };
+
         try {
+            // Get real-time GPS coordinates
+            const gpsCoords = await getRealTimeGPS();
+            console.log("📍 Real-time GPS coordinates:", gpsCoords);
+
             const res = await fetch('http://localhost:5001/api/attendance', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -313,25 +390,36 @@ const EmployeeDashboard = () => {
                     status: 'P',
                     photo: photoData,
                     verifyStatus: verifyStatus,
-                    location: currentPos ? {
-                        lat: currentPos.lat,
-                        lng: currentPos.lng,
+                    gpsLat: gpsCoords.lat,
+                    gpsLng: gpsCoords.lng,
+                    location: {
+                        lat: gpsCoords.lat,
+                        lng: gpsCoords.lng,
                         siteName: assignedLocation?.name || "Office"
-                    } : null
+                    }
                 })
             });
 
             if (res.ok) {
-                alert(`Attendance marked successfully: ${verifyStatus}`);
+                const responseData = await res.json();
+                const locationMsg = responseData.location 
+                    ? ` at ${responseData.location} (${responseData.distance}m away)`
+                    : '';
+                alert(`Attendance marked successfully: ${verifyStatus}${locationMsg}`);
                 setAttendance(prev => ({ ...prev, [today]: 'P' }));
             } else {
                 const errData = await res.json().catch(() => ({}));
                 alert(`Error marking attendance: ${errData.message || res.statusText || 'Unknown error'}`);
             }
-        } catch {
-            alert('Connection error with attendance server');
+        } catch (error) {
+            console.error('Attendance marking error:', error);
+            if (error.message && (error.message.includes('Location') || error.message.includes('GPS') || error.message.includes('Geolocation'))) {
+                alert(`📍 ${error.message}\n\nTo mark attendance:\n1. Click "Allow" when browser asks for location permission\n2. Make sure location services are enabled on your device\n3. Try again`);
+            } else {
+                alert(`Error: ${error.message || 'Connection error with attendance server'}`);
+            }
         }
-    }, [employeeData, currentPos, assignedLocation]);
+    }, [employeeData, assignedLocation]);
 
     const captureAndSubmit = useCallback(() => {
         const video = videoRef.current;
@@ -1042,14 +1130,96 @@ const EmployeeDashboard = () => {
         {attendance[today] === 'P' ? '✅ Attendance Already Marked' : '🕘 Mark Attendance'}
     </Button>
 
-                        <p style={{ fontSize: '0.8rem', color: '#64748b', textAlign: 'center', marginBottom: '5px' }}>
-                            📡 Database: {allLocations.length > 0 ? `Connected (${allLocations.length} Locations)` : 'Connecting / Empty'}
-                            {USE_MOCK_LOCATION && <span style={{ color: '#f59e0b', marginLeft: '10px' }}>⚠️ Mock GPS On</span>}
-                        </p>
+                        {!USE_MOCK_LOCATION && (
+                            <p style={{ fontSize: '0.75rem', color: '#3b82f6', textAlign: 'center', marginTop: '8px', marginBottom: '5px', fontWeight: '500' }}>
+                                📍 Location permission will be requested when you mark attendance
+                            </p>
+                        )}
 
-                        <p style={{ fontSize: '0.8rem', color: '#ef4444' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
+                                📡 Database: {allLocations.length > 0 ? `Connected (${allLocations.length} Locations)` : 'Connecting / Empty'}
+                                {USE_MOCK_LOCATION && <span style={{ color: '#f59e0b', marginLeft: '10px' }}>⚠️ Mock GPS On</span>}
+                            </p>
+                            <button
+                                onClick={() => {
+                                    // Force refresh location with fresh GPS
+                                    if (employeeData) {
+                                        const getGeoLocation = (onSuccess, onError) => {
+                                            if (USE_MOCK_LOCATION) {
+                                                onSuccess({
+                                                    coords: {
+                                                        latitude: TEST_LAT,
+                                                        longitude: TEST_LNG,
+                                                        accuracy: 10
+                                                    }
+                                                });
+                                            } else {
+                                                navigator.geolocation.getCurrentPosition(
+                                                    onSuccess,
+                                                    onError,
+                                                    { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+                                                );
+                                            }
+                                        };
+                                        getGeoLocation(
+                                            (pos) => {
+                                                const userLat = pos.coords.latitude;
+                                                const userLng = pos.coords.longitude;
+                                                checkLocationAndUpdate(userLat, userLng);
+                                            },
+                                            () => {
+                                                setCanMarkAttendance(false);
+                                                setLocationMsg('❌ Location permission required');
+                                            }
+                                        );
+                                    }
+                                }}
+                                style={{
+                                    background: 'var(--primary)',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '6px 12px',
+                                    borderRadius: '6px',
+                                    fontSize: '0.75rem',
+                                    cursor: 'pointer',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                🔄 Refresh Location
+                            </button>
+                        </div>
+
+                        <p style={{ fontSize: '0.8rem', color: '#ef4444', whiteSpace: 'pre-line', marginBottom: '5px' }}>
                             {locationMsg}
                         </p>
+                        
+                        {locationMsg && !locationMsg.includes('permission required') && (
+                            <>
+                                <p style={{ fontSize: '0.7rem', color: '#64748b', fontStyle: 'italic', marginTop: '5px', marginBottom: '5px' }}>
+                                    💡 Note: GPS coordinates may differ slightly from map coordinates due to device accuracy. Small differences (within radius) are normal.
+                                </p>
+                                {locationMsg.includes('Outside') && (
+                                    <div style={{ 
+                                        fontSize: '0.75rem', 
+                                        color: '#f59e0b', 
+                                        background: '#fffbeb',
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        marginTop: '8px',
+                                        border: '1px solid #fde68a'
+                                    }}>
+                                        <strong>⚠️ Troubleshooting:</strong>
+                                        <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
+                                            <li>Click "🔄 Refresh Location" to get fresh GPS coordinates</li>
+                                            <li>If you're at the office, the office coordinates may need to be updated in Admin Portal</li>
+                                            <li>Check if the office radius needs to be increased (currently shown in distance)</li>
+                                            <li>Verify your GPS coordinates match the office location on the map</li>
+                                        </ul>
+                                    </div>
+                                )}
+                            </>
+                        )}
 
                         <div className="fly-card" style={{ marginBottom: '30px', padding: '30px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>

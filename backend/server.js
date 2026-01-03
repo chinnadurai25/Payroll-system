@@ -424,16 +424,88 @@ app.put("/api/employees/:employeeId/payroll", async (req, res) => {
 });
 
 /* =========================================================
+   HELPER: Calculate distance between two GPS coordinates (Haversine formula)
+========================================================= */
+function getDistanceInMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // Earth's radius in meters
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) ** 2;
+
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/* =========================================================
    ATTENDANCE
 ========================================================= */
 app.post("/api/attendance", async (req, res) => {
   try {
-    const { employeeId, date, status, photo, verifyStatus, location } = req.body;
-    console.log("📝 Received attendance data:", { employeeId, date, status, verifyStatus });
+    const { employeeId, date, status, photo, verifyStatus, location, gpsLat, gpsLng } = req.body;
+    console.log("📝 Received attendance data:", { employeeId, date, status, verifyStatus, gpsLat, gpsLng });
 
     if (!employeeId || !date) {
       return res.status(400).json({ message: "Missing employeeId or date" });
     }
+
+    // Validate real-time GPS coordinates
+    if (!gpsLat || !gpsLng) {
+      return res.status(400).json({ 
+        message: "Real-time GPS coordinates are required. Please enable location services." 
+      });
+    }
+
+    // Fetch all registered locations from admin portal
+    const registeredLocations = await Location.find();
+    
+    if (!registeredLocations || registeredLocations.length === 0) {
+      return res.status(400).json({ 
+        message: "No locations registered in admin portal. Please contact administrator." 
+      });
+    }
+
+    // Check if employee is within any registered location
+    let isWithinLocation = false;
+    let matchedLocation = null;
+    let minDistance = Infinity;
+
+    for (const loc of registeredLocations) {
+      const distance = getDistanceInMeters(
+        parseFloat(gpsLat),
+        parseFloat(gpsLng),
+        loc.latitude,
+        loc.longitude
+      );
+      
+      const radius = loc.radius || 100; // Default radius is 100 meters
+      
+      if (distance < minDistance) {
+        minDistance = distance;
+      }
+
+      if (distance <= radius) {
+        isWithinLocation = true;
+        matchedLocation = {
+          name: loc.name,
+          distance: Math.round(distance),
+          type: loc.type
+        };
+        break; // Found a match, no need to check further
+      }
+    }
+
+    if (!isWithinLocation) {
+      return res.status(403).json({ 
+        message: `You are not within any registered location. Nearest location is ${Math.round(minDistance)}m away. Please move to a registered location to mark attendance.`,
+        nearestDistance: Math.round(minDistance)
+      });
+    }
+
+    console.log(`✅ Location validated: Employee ${employeeId} is within ${matchedLocation.name} (${matchedLocation.distance}m)`);
 
     const month = date.slice(0, 7);
 
@@ -441,6 +513,14 @@ app.post("/api/attendance", async (req, res) => {
     if (photo) updateData.photo = photo;
     if (verifyStatus) updateData.verifyStatus = verifyStatus;
     if (location) updateData.location = location;
+    // Store validated GPS coordinates
+    updateData.validatedGPS = {
+      lat: parseFloat(gpsLat),
+      lng: parseFloat(gpsLng),
+      locationName: matchedLocation.name,
+      distance: matchedLocation.distance,
+      timestamp: new Date().toISOString()
+    };
 
     await Attendance.findOneAndUpdate(
       { employeeId, month },
@@ -448,8 +528,12 @@ app.post("/api/attendance", async (req, res) => {
       { upsert: true, new: true }
     );
 
-    console.log(`✅ Attendance saved for ${employeeId} on ${date}: ${status}`);
-    res.json({ message: "Attendance saved successfully" });
+    console.log(`✅ Attendance saved for ${employeeId} on ${date}: ${status} at ${matchedLocation.name}`);
+    res.json({ 
+      message: "Attendance saved successfully",
+      location: matchedLocation.name,
+      distance: matchedLocation.distance
+    });
   } catch (err) {
     console.error("❌ Error saving attendance:", err);
     // Send detailed error to frontend for debugging

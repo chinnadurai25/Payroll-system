@@ -163,7 +163,7 @@ const Register = () => {
     setLoading(true);
     try {
       const photoBase64 = await resizeImage(formData.profilePhoto);
-      const res = await fetch("http://192.168.1.7:5001/register", {
+      const res = await fetch("http://localhost:5001/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, profilePhoto: photoBase64, role }),
