@@ -3,10 +3,14 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
+const setupCronJobs = require('./cronJobs');
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
+
+// Initialize Cron Jobs - Moved to bottom to ensure models are loaded
+// setupCronJobs();
 
 // Simple request logger
 app.use((req, res, next) => {
@@ -887,3 +891,6 @@ const PORT = 5001; // Hardcoded to avoid port 5000 conflicts
 app.listen(PORT, () =>
   console.log(`🚀 Server running on port ${PORT}`)
 );
+
+// Initialize Cron Jobs (After models are loaded)
+setupCronJobs();
