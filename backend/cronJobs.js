@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 // NOTE: server.js must be running for this to work if this file is imported there.
 
 const cleanupLeaves = async () => {
-    console.log('⏰ Running Cron Job: Cleanup Old Approved Leaves...');
+    console.log('⏰ Running Cron Job: Cleanup Old Approved & Rejected Leaves...');
 
     try {
         const Leave = mongoose.model('Leave');
@@ -20,7 +20,7 @@ const cleanupLeaves = async () => {
         const cutoffDateStr = sevenDaysAgo.toISOString().slice(0, 10); // YYYY-MM-DD format for string comparison
 
         const result = await Leave.deleteMany({
-            status: 'Approved',
+            status: { $in: ['Approved', 'Rejected'] },
             endDate: { $lt: cutoffDateStr }
         });
 
