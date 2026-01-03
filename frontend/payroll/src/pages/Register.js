@@ -144,13 +144,40 @@ const Register = () => {
     if (!formData.email) newErrors.email = "Email is required";
     else if (!formData.email.endsWith("@fly.com")) newErrors.email = "Email must end with @fly.com";
 
-    if (!formData.password) newErrors.password = "Password is required";
-    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+   /* ================= PASSWORD VALIDATION ================= */
 
-    if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password";
-    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+  if (!formData.password) {
+    newErrors.password = "Password is required. Example: Abc@123";
+  } 
+  else {
+    const password = formData.password;
 
-    if (!formData.profilePhoto) newErrors.profilePhoto = "Profile photo is required";
+    if (password.length < 6) {
+      newErrors.password =
+        "Password must be at least 6 characters. Example: Abc@123";
+    } 
+    else if (!/^[A-Z]/.test(password)) {
+      newErrors.password =
+        "Password must start with a capital letter. Example: Abc@123";
+    } 
+    else if (!/\d/.test(password)) {
+      newErrors.password =
+        "Password must contain at least one number. Example: Abc@123";
+    } 
+    else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      newErrors.password =
+        "Password must contain at least one special character. Example: Abc@123";
+    }
+  }
+
+  /* ================= CONFIRM PASSWORD ================= */
+
+  if (!formData.confirmPassword) {
+    newErrors.confirmPassword = "Please confirm your password";
+  } 
+  else if (formData.password !== formData.confirmPassword) {
+    newErrors.confirmPassword = "Passwords do not match";
+  }
 
     setErrors(newErrors);
 
