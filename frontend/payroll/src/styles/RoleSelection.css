@@ -10,6 +10,9 @@
     /* Context for z-index */
     z-index: 1;
 }
+body:has(.role-selection-container) .nav-links {
+    display: none;
+}
 
 .role-cards-wrapper {
     display: flex;

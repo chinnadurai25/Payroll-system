@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import * as faceapi from "face-api.js";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import "../styles/Register.css";
-
-const faceapi = window.faceapi;
 
 // Simple account validation with mock data
 const TN_BANK_PREFIXES = {
@@ -247,17 +246,17 @@ const Register = () => {
                   <Input label="IFSC Code" name="bankCode" value={formData.bankCode} onChange={handleChange} required />
                 </div>
               </div>
-
+              
               {/* ✅ MODIFIED BUTTON: Smaller, centered, and matching color */}
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                <Button
-                  type="button"
-                  onClick={handleAccountValidation}
-                  style={{
-                    padding: "10px 25px",
+                <Button 
+                  type="button" 
+                  onClick={handleAccountValidation} 
+                  style={{ 
+                    padding: "10px 25px", 
                     fontSize: "0.9rem",
-                    width: "auto",
-                    background: "linear-gradient(135deg, #00d4ff, #7c3aed)",
+                    width: "auto", 
+                    background: "linear-gradient(135deg, #00d4ff, #7c3aed)", 
                     border: "none",
                     borderRadius: "8px"
                   }}
