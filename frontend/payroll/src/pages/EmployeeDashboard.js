@@ -265,9 +265,9 @@ const EmployeeDashboard = () => {
                 // - maximumAge: 0 (forces fresh location, no cache)
                 // - timeout: 15000 (15 seconds max wait)
                 navigator.geolocation.getCurrentPosition(
-                    onSuccess, 
-                    onError, 
-                    { 
+                    onSuccess,
+                    onError,
+                    {
                         enableHighAccuracy: true,
                         maximumAge: 0,  // Force fresh GPS, no cached data
                         timeout: 15000  // 15 second timeout
@@ -350,7 +350,7 @@ const EmployeeDashboard = () => {
                         },
                         (error) => {
                             let errorMessage = 'Location access denied. ';
-                            switch(error.code) {
+                            switch (error.code) {
                                 case error.PERMISSION_DENIED:
                                     errorMessage += 'Please allow location access in your browser settings to mark attendance.';
                                     break;
@@ -366,9 +366,9 @@ const EmployeeDashboard = () => {
                             }
                             reject(new Error(errorMessage));
                         },
-                        { 
-                            enableHighAccuracy: true, 
-                            timeout: 15000, 
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 15000,
                             maximumAge: 0  // Force fresh GPS, no cache
                         }
                     );
@@ -402,7 +402,7 @@ const EmployeeDashboard = () => {
 
             if (res.ok) {
                 const responseData = await res.json();
-                const locationMsg = responseData.location 
+                const locationMsg = responseData.location
                     ? ` at ${responseData.location} (${responseData.distance}m away)`
                     : '';
                 alert(`Attendance marked successfully: ${verifyStatus}${locationMsg}`);
@@ -979,10 +979,85 @@ const EmployeeDashboard = () => {
                                 )}
                             </div>
 
+                            <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                                <h4 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--text-muted)' }}>🎙️ Verify to Capture</h4>
+
+                                <p style={{
+                                    background: "#f1f5f9",
+                                    padding: "8px",
+                                    borderRadius: "8px",
+                                    fontWeight: "700",
+                                    fontSize: "0.9rem",
+                                    textAlign: "center",
+                                    marginBottom: "10px"
+                                }}>
+                                    "{dailyText}"
+                                </p>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                                    {!textVerified ? (
+                                        <Button
+                                            onClick={() => {
+                                                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                                                    alert("Your browser does not support voice recognition. Please use Chrome or Edge.");
+                                                    return;
+                                                }
+
+                                                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                                                const recognition = new SpeechRecognition();
+
+                                                recognition.lang = 'en-US';
+                                                recognition.interimResults = false;
+                                                recognition.maxAlternatives = 1;
+
+                                                setTypedText("Listening...");
+
+                                                recognition.onstart = () => { };
+
+                                                recognition.onresult = (event) => {
+                                                    const transcript = event.results[0][0].transcript;
+                                                    setTypedText(transcript);
+                                                };
+
+                                                recognition.onerror = (event) => {
+                                                    console.error("Speech recognition error", event.error);
+                                                    setTypedText("Error: " + event.error);
+                                                };
+
+                                                recognition.start();
+                                            }}
+                                            style={{
+                                                background: 'var(--secondary)',
+                                                color: 'var(--text-main)',
+                                                padding: '8px 16px',
+                                                borderRadius: '50px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '6px',
+                                                fontSize: '0.9rem'
+                                            }}
+                                        >
+                                            🎙️ Read Aloud
+                                        </Button>
+                                    ) : (
+                                        <div style={{ fontSize: '1rem', color: '#16a34a', fontWeight: 'bold' }}>
+                                            ✅ Verified
+                                        </div>
+                                    )}
+
+                                    {typedText && !textVerified && (
+                                        <p style={{ fontSize: '0.8rem', fontStyle: 'italic', fontWeight: '600', color: 'var(--text-muted)' }}>
+                                            Heard: "{typedText}"
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
                             <div style={{ marginTop: '25px', display: 'flex', gap: '12px', justifyContent: 'center' }}>
                                 <Button variant="secondary" onClick={() => setShowCameraModal(false)}>Cancel</Button>
                                 <Button
                                     variant="primary"
+                                    disabled={!textVerified}
                                     onClick={() => {
                                         const video = videoRef.current;
                                         const canvas = canvasRef.current;
@@ -997,8 +1072,12 @@ const EmployeeDashboard = () => {
                                             canvas.getContext('2d').drawImage(video, 0, 0, width, height);
                                             // Use lower quality jpeg to save space
                                             const photoData = canvas.toDataURL('image/jpeg', 0.7);
-                                            markAttendanceWithPhoto(photoData, 'Manual Capture');
+                                            markAttendanceWithPhoto(photoData, 'Verified (Voice + Face)');
                                         }
+                                    }}
+                                    style={{
+                                        opacity: textVerified ? 1 : 0.5,
+                                        cursor: textVerified ? 'pointer' : 'not-allowed'
                                     }}
                                 >
                                     📸 Capture & Mark
@@ -1022,113 +1101,21 @@ const EmployeeDashboard = () => {
 
                 {viewMode === 'overview' && (
                     <>
-                        {/* DAILY VOICE VERIFICATION */}
-                        <div className="fly-card" style={{ padding: "20px", marginBottom: "20px" }}>
-                            <h3 style={{ marginBottom: "10px", fontSize: "1rem" }}>
-                                🎙️ Daily Voice Verification
-                            </h3>
 
-                            <p style={{
-                                background: "#f1f5f9",
-                                padding: "10px",
-                                borderRadius: "8px",
-                                fontWeight: "700",
-                                textAlign: "center",
-                                marginBottom: "15px"
-                            }}>
-                                "{dailyText}"
-                            </p>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
-                                {!textVerified ? (
-                                    <Button
-                                        onClick={() => {
-                                            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                                                alert("Your browser does not support voice recognition. Please use Chrome or Edge.");
-                                                return;
-                                            }
-
-                                            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                                            const recognition = new SpeechRecognition();
-
-                                            recognition.lang = 'en-US';
-                                            recognition.interimResults = false;
-                                            recognition.maxAlternatives = 1;
-
-                                            setTypedText("Listening..."); // Reusing typedText state for status/feedback
-
-                                            recognition.onstart = () => {
-                                                // setIsListening(true); // You can add this state if needed for UI styling
-                                            };
-
-                                            recognition.onresult = (event) => {
-                                                const transcript = event.results[0][0].transcript;
-                                                setTypedText(transcript); // Show what was heard
-                                            };
-
-                                            recognition.onerror = (event) => {
-                                                console.error("Speech recognition error", event.error);
-                                                setTypedText("Error: " + event.error);
-                                            };
-
-                                            recognition.onend = () => {
-                                                // setIsListening(false);
-                                            };
-
-                                            recognition.start();
-                                        }}
-                                        style={{
-                                            background: 'var(--primary)',
-                                            color: 'white',
-                                            padding: '12px 24px',
-                                            borderRadius: '50px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '8px',
-                                            fontSize: '1rem'
-                                        }}
-                                    >
-                                        🎙️ Tap to Read Aloud
-                                    </Button>
-                                ) : (
-                                    <div style={{ fontSize: '1.2rem', color: '#16a34a', fontWeight: 'bold' }}>
-                                        ✅ Verified
-                                    </div>
-                                )}
-
-                                {typedText && (
-                                    <div style={{ textAlign: 'center' }}>
-                                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Heard:</p>
-                                        <p style={{ fontSize: '1rem', fontStyle: 'italic', fontWeight: '600', color: 'var(--text-main)' }}>
-                                            "{typedText}"
-                                        </p>
-                                    </div>
-                                )}
-
-                                <p style={{
-                                    marginTop: "6px",
-                                    fontSize: "0.75rem",
-                                    color: textVerified ? "#16a34a" : "#ef4444",
-                                    fontWeight: "600"
-                                }}>
-                                    {textVerified ? "✅ Voice matched successfully" : (typedText && typedText !== "Listening..." ? "❌ Phrase does not match. Try again." : "")}
-                                </p>
-                            </div>
-                        </div>
 
                         <Button
-        onClick={() => setShowCameraModal(true)}
-        disabled={!canMarkAttendance || !textVerified || attendance[today] === 'P'}
-        style={{
-            background: (canMarkAttendance && textVerified && attendance[today] !== 'P')
-                ? 'linear-gradient(135deg, #22c55e, #16a34a)'
-                : '#9ca3af',
-            color: 'white',
-            cursor: (canMarkAttendance && textVerified && attendance[today] !== 'P') ? 'pointer' : 'not-allowed'
-        }}
-    >
-        {attendance[today] === 'P' ? '✅ Attendance Already Marked' : '🕘 Mark Attendance'}
-    </Button>
+                            onClick={() => setShowCameraModal(true)}
+                            disabled={attendance[today] === 'P'}
+                            style={{
+                                background: (attendance[today] !== 'P')
+                                    ? 'linear-gradient(135deg, #22c55e, #16a34a)'
+                                    : '#9ca3af',
+                                color: 'white',
+                                cursor: (attendance[today] !== 'P') ? 'pointer' : 'not-allowed'
+                            }}
+                        >
+                            {attendance[today] === 'P' ? '✅ Attendance Already Marked' : '🕘 Mark Attendance'}
+                        </Button>
 
                         {!USE_MOCK_LOCATION && (
                             <p style={{ fontSize: '0.75rem', color: '#3b82f6', textAlign: 'center', marginTop: '8px', marginBottom: '5px', fontWeight: '500' }}>
@@ -1193,16 +1180,16 @@ const EmployeeDashboard = () => {
                         <p style={{ fontSize: '0.8rem', color: '#ef4444', whiteSpace: 'pre-line', marginBottom: '5px' }}>
                             {locationMsg}
                         </p>
-                        
+
                         {locationMsg && !locationMsg.includes('permission required') && (
                             <>
                                 <p style={{ fontSize: '0.7rem', color: '#64748b', fontStyle: 'italic', marginTop: '5px', marginBottom: '5px' }}>
                                     💡 Note: GPS coordinates may differ slightly from map coordinates due to device accuracy. Small differences (within radius) are normal.
                                 </p>
                                 {locationMsg.includes('Outside') && (
-                                    <div style={{ 
-                                        fontSize: '0.75rem', 
-                                        color: '#f59e0b', 
+                                    <div style={{
+                                        fontSize: '0.75rem',
+                                        color: '#f59e0b',
                                         background: '#fffbeb',
                                         padding: '10px',
                                         borderRadius: '8px',
